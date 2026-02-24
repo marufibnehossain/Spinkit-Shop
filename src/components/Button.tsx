@@ -18,11 +18,11 @@ const base =
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-surface border border-border text-text px-6 py-3 rounded-lg hover:border-text/30 hover:shadow-sm",
+    "bg-surface border border-border text-text px-6 py-3 rounded-none hover:border-text/30 hover:shadow-sm",
   secondary:
-    "bg-sage-1 border border-border text-text px-6 py-3 rounded-lg hover:bg-sage-2/50 hover:border-sage-2",
+    "bg-sage-1 border border-border text-text px-6 py-3 rounded-none hover:bg-sage-2/50 hover:border-sage-2",
   hero:
-    "bg-white text-sage-dark px-6 py-3 rounded-lg hover:bg-hero-text/10 transition-colors",
+    "bg-accent text-sage-dark px-6 py-3 rounded-none hover:bg-accent/90 transition-colors font-display",
   "text-arrow":
     "text-text hover:text-muted border-0 bg-transparent px-0 py-2",
 };

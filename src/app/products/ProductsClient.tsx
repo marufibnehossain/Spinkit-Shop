@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 
 const SORT_OPTIONS = [
-  { value: "", label: "Default" },
+  { value: "", label: "Default sorting" },
   { value: "newest", label: "Newest" },
   { value: "rating", label: "Rating" },
   { value: "price-asc", label: "Price: low to high" },
@@ -25,11 +25,9 @@ export default function ProductsClient({ sort }: { sort?: string }) {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="sort" className="font-sans text-sm text-muted shrink-0">
-        Sort
-      </label>
       <select
         id="sort"
+        aria-label="Sort products"
         value={sort ?? ""}
         onChange={handleSortChange}
         className="rounded-lg border border-border bg-bg px-3 py-2 font-sans text-sm text-text focus:outline-none focus:ring-2 focus:ring-sage-2"

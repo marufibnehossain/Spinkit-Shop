@@ -45,6 +45,8 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
+  image?: string | null;
+  parentId?: string | null;
 }
 
 // Categories and products are now stored in the database
@@ -53,10 +55,12 @@ import { getProducts as getProductsFromDb, getProductBySlug as getProductBySlugF
 
 // Keep these for backward compatibility (used in some components)
 export const categories: Category[] = [
-  { id: "1", name: "Skincare", slug: "skincare" },
-  { id: "2", name: "Body Care", slug: "body-care" },
-  { id: "3", name: "Wellness", slug: "wellness" },
-  { id: "4", name: "Gifts", slug: "gifts" },
+  { id: "cat-1", name: "Rubbers", slug: "rubbers" },
+  { id: "cat-2", name: "Blades", slug: "blades" },
+  { id: "cat-3", name: "Bats", slug: "bats" },
+  { id: "cat-4", name: "Balls", slug: "balls" },
+  { id: "cat-5", name: "Cleaners & Glue", slug: "cleaners-glue" },
+  { id: "cat-6", name: "Accessories", slug: "accessories" },
 ];
 
 // Legacy products array - kept for type compatibility, but actual data comes from DB
@@ -181,19 +185,18 @@ export async function searchProducts(query: string): Promise<Product[]> {
 }
 
 export const filterTags = [
-  { id: "toners", name: "Toners", slug: "toners" },
-  { id: "cleansers", name: "Cleansers", slug: "cleansers" },
-  { id: "serums", name: "Serums", slug: "serums" },
-  { id: "masks", name: "Masks", slug: "masks" },
-  { id: "moisturizers", name: "Moisturizers", slug: "moisturizers" },
-  { id: "sunscreen", name: "Sunscreen", slug: "sunscreen" },
-  { id: "oils", name: "Oils", slug: "oils" },
+  { id: "rubbers", name: "Rubbers", slug: "rubbers" },
+  { id: "blades", name: "Blades", slug: "blades" },
+  { id: "bats", name: "Bats", slug: "bats" },
+  { id: "balls", name: "Balls", slug: "balls" },
+  { id: "cleaners-glue", name: "Cleaners & Glue", slug: "cleaners-glue" },
+  { id: "accessories", name: "Accessories", slug: "accessories" },
 ];
 
 export const asSeenInLogos = [
-  { name: "VOGUE", src: "/images/logo-placeholder.svg" },
-  { name: "Forbes", src: "/images/logo-placeholder.svg" },
-  { name: "THOUGHT CATALOG", src: "/images/logo-placeholder.svg" },
-  { name: "Women's Health", src: "/images/logo-placeholder.svg" },
-  { name: "WWD", src: "/images/logo-placeholder.svg" },
+  { name: "ITTF", src: "/images/logo-placeholder.svg" },
+  { name: "Donic", src: "/images/logo-placeholder.svg" },
+  { name: "Joola", src: "/images/logo-placeholder.svg" },
+  { name: "Butterfly", src: "/images/logo-placeholder.svg" },
+  { name: "Stiga", src: "/images/logo-placeholder.svg" },
 ];

@@ -40,6 +40,6 @@ export const useWishlistStore = create<WishlistState>()(
         else get().addItem(item);
       },
     }),
-    { name: "velvety-wishlist" }
+    { name: "spinkit-wishlist" }
   )
 );

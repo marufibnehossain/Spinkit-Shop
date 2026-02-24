@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-bg flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <h1 className="font-sans text-2xl font-semibold text-sage-dark uppercase tracking-wide mb-1">
-          Velvety Admin
+          Spinkit Admin
         </h1>
         <p className="font-sans text-sm text-muted mb-8">Sign in with an admin account.</p>
         <form onSubmit={handleSubmit} className="space-y-6">

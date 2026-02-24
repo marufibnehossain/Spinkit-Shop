@@ -98,7 +98,7 @@ export default function ContactPage() {
             <h3 className="font-sans text-lg font-medium text-text mb-4">Other ways to reach us</h3>
             <div className="font-sans text-muted space-y-2">
               <p>Call: +1 (234) 567 890</p>
-              <p>Email: hello@velvety.com</p>
+              <p>Email: admin@spinkit-shop.com</p>
               <p className="pt-4">Mon–Fri, 9am–5pm PT</p>
             </div>
           </div>

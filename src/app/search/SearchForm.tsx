@@ -31,7 +31,7 @@ export default function SearchForm({ initialQuery = "" }: { initialQuery?: strin
         />
         <button
           type="submit"
-          className="rounded-lg border border-border bg-surface px-6 py-3 font-sans text-sm text-text hover:bg-sage-1 transition-colors"
+          className="rounded-none border border-border bg-surface px-6 py-3 font-sans text-sm text-text hover:bg-sage-1 transition-colors"
         >
           Search
         </button>

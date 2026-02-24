@@ -15,12 +15,12 @@ export async function sendVerificationEmail(
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: [to],
-      subject: "Verify your Velvety account",
+      subject: "Verify your Spinkit Shop account",
       html: `
         <p>Thanks for signing up. Please verify your email by clicking the link below:</p>
         <p><a href="${verificationUrl}">${verificationUrl}</a></p>
         <p>This link expires in 24 hours. If you didn’t create an account, you can ignore this email.</p>
-        <p>— Velvety</p>
+        <p>— Spinkit Shop</p>
       `,
     });
     if (error) {
@@ -68,7 +68,7 @@ export async function sendOrderConfirmationEmail(
     const { error } = await resend.emails.send({
       from: fromEmail,
       to: [to],
-      subject: "Your Velvety order confirmation",
+      subject: "Your Spinkit Shop order confirmation",
       html: `
         <p>Hi${name ? ` ${name}` : ""},</p>
         <p>Thanks for your order. Here’s a summary:</p>
@@ -80,7 +80,7 @@ export async function sendOrderConfirmationEmail(
         ${discount > 0 ? `<p>Discount${coupon ? ` (${coupon})` : ""}: -$${discount.toFixed(2)}</p>` : ""}
         <p>Shipping: $${shipping.toFixed(2)}</p>
         <p><strong>Total: $${total.toFixed(2)}</strong></p>
-        <p>— Velvety</p>
+        <p>— Spinkit Shop</p>
       `,
     });
     if (error) {
@@ -106,12 +106,12 @@ export async function sendPasswordResetEmail(
     const { error } = await resend.emails.send({
       from: fromEmail,
       to: [to],
-      subject: "Reset your Velvety password",
+      subject: "Reset your Spinkit Shop password",
       html: `
         <p>You requested a password reset. Click the link below to set a new password:</p>
         <p><a href="${resetUrl}">${resetUrl}</a></p>
         <p>This link expires in 1 hour. If you didn’t request this, you can ignore this email.</p>
-        <p>— Velvety</p>
+        <p>— Spinkit Shop</p>
       `,
     });
     if (error) {

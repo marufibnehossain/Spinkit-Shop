@@ -1,10 +1,10 @@
+import Link from "next/link";
 import { getProducts, getCategories } from "@/lib/products";
 import { categories } from "@/lib/data";
 import type { Product } from "@/lib/data";
-import SectionHeading from "@/components/SectionHeading";
 import ProductCard from "@/components/ProductCard";
-import FilterChips from "@/components/FilterChips";
 import ProductsClient from "./ProductsClient";
+import SidebarFilters from "./SidebarFilters";
 
 interface ProductsPageProps {
   searchParams?: { category?: string; sort?: string };
@@ -37,37 +37,47 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       ? allProducts.filter((p) => p.category === categorySlug)
       : allProducts;
   const sorted = sortProducts(filtered, searchParams?.sort);
+  const total = sorted.length;
+  const visibleCount = Math.min(total, 12);
 
   return (
-    <div className="min-h-screen bg-bg">
-      <section className="border-b border-border bg-surface py-12 md:py-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <SectionHeading
-            eyebrow="Shop"
-            title="All products"
-            subtitle="Natural and certified organic skincare. Filter by category or browse the full collection."
-          />
-        </div>
-      </section>
-      <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-            <FilterChips options={categories} paramKey="category" />
-            <ProductsClient sort={searchParams?.sort} />
+    <div className="min-h-screen">
+      {/* Main content: sidebar + (results bar + grid) */}
+      <section className="py-[50px]">
+        <div className="mx-auto max-w-[1315px] px-4 md:px-6 grid gap-10 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <div>
+            <h1 className="font-display text-xl md:text-2xl font-medium text-text mb-6">
+              Shop All
+            </h1>
+            <SidebarFilters categories={categories} />
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {sorted.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          {sorted.length === 0 && (
-            <div className="text-center py-16">
-              <p className="font-sans text-muted">No products match this filter.</p>
-              <a href="/products" className="font-sans text-sage-dark hover:underline mt-2 inline-block">
-                View all products
-              </a>
+          <div>
+            {/* Results bar + sort — above the product grid */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <span className="font-sans text-sm text-muted">
+                {total > 0
+                  ? `Showing 1–${visibleCount} of ${total} Result${total !== 1 ? "s" : ""}`
+                  : "No results"}
+              </span>
+              <ProductsClient sort={searchParams?.sort} />
             </div>
-          )}
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {sorted.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            {sorted.length === 0 && (
+              <div className="text-center py-16">
+                <p className="font-sans text-muted">No products match this filter.</p>
+                <Link
+                  href="/products"
+                  className="font-sans text-sage-dark hover:underline mt-2 inline-block"
+                >
+                  View all products
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>

@@ -1,73 +1,70 @@
 import Link from "next/link";
 import AdminFooterLink from "@/components/AdminFooterLink";
+import FooterNewsletter from "@/components/FooterNewsletter";
 
-const footerLinks = {
-  Shop: [
-    { href: "/products", label: "Shop All" },
-    { href: "/products?category=sets", label: "Sets" },
-    { href: "/products?category=serums", label: "Serums" },
-    { href: "/products?category=moisturizers", label: "Moisturizers" },
-    { href: "/products?category=masks", label: "Masks" },
-    { href: "/products?category=cleansers", label: "Cleansers" },
-    { href: "/products?category=toners", label: "Toners" },
-    { href: "/products?category=sunscreens", label: "Sunscreens" },
-    { href: "/products?category=gifts", label: "Gifts" },
-    { href: "/faq", label: "FAQs" },
-  ],
-  About: [
-    { href: "/about", label: "Our Story" },
-    { href: "/about#mission", label: "Our Mission" },
-    { href: "/about#sustainability", label: "Sustainability" },
-    { href: "/care-tips", label: "Care Tips" },
-    { href: "/ingredients", label: "Ingredients" },
-    { href: "/reviews", label: "Reviews" },
-    { href: "/contact", label: "Contacts" },
-  ],
-  Legal: [
-    { href: "/terms", label: "Terms of Service" },
-    { href: "/privacy", label: "Privacy Policy" },
-    { href: "/returns", label: "Returns" },
-    { href: "/shipping", label: "Shipping" },
-    { href: "/refund-policy", label: "Refund Policy" },
-  ],
-};
+const supportLinks = [
+  { href: "/about", label: "Who we are" },
+  { href: "/contact", label: "Customer service" },
+  { href: "/products", label: "Discounts" },
+  { href: "/payment", label: "Payment" },
+  { href: "/shipping", label: "Transport" },
+  { href: "/privacy", label: "Privacy" },
+];
+
+const companyLinks = [
+  { href: "/stores", label: "Our stores" },
+  { href: "/assembly", label: "Racket assembly service" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/refund-policy", label: "Refund" },
+  { href: "/terms", label: "General conditions" },
+  { href: "/cookies", label: "Cookies" },
+];
 
 const socialLinks = [
-  { href: "#", label: "Instagram", icon: "ig" },
-  { href: "#", label: "Facebook", icon: "fb" },
-  { href: "#", label: "Twitter", icon: "tw" },
-  { href: "#", label: "Pinterest", icon: "pin" },
-  { href: "#", label: "YouTube", icon: "yt" },
+  { href: "#", label: "Instagram" },
+  { href: "#", label: "Facebook" },
+  { href: "#", label: "LinkedIn" },
+  { href: "#", label: "YouTube" },
 ];
 
 export default function Footer() {
   return (
-    <footer className="bg-bg border-t border-border text-text">
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-          <div className="col-span-2 md:col-span-1">
-            <Link
-              href="/"
-              className="font-sans text-xl font-semibold text-sage-dark uppercase tracking-wide hover:text-text"
-            >
-              Velvety
-            </Link>
-            <div className="mt-4 font-sans text-sm text-muted space-y-1">
-              <p>Call Us: +1 (234) 567 890</p>
-              <p>Email: hello@velvety.com</p>
+    <footer className="text-white">
+      {/* Two main blocks: left 35% newsletter, right 65% links + bottom */}
+      <div className="grid md:grid-cols-[35%_65%]">
+        {/* Left block: Newsletter panel — full-bleed photo, overlay centered-left */}
+        <FooterNewsletter />
+
+        {/* Right block: dark charcoal, 4 columns + bottom area inside */}
+        <div className="bg-[#1a1a1a] flex flex-col min-h-[320px] md:min-h-0">
+          {/* 4 vertical columns: Brand+contact, Support, Company, Social */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-6 py-10 md:py-12 lg:px-10 lg:py-14 flex-1">
+            {/* Column 1: Brand + contact */}
+            <div>
+              <Link
+                href="/"
+                className="font-sans text-xl md:text-2xl font-bold text-[#D6FC45]"
+              >
+                Spinkit.Shop
+              </Link>
+              <div className="mt-4 font-sans text-sm text-white space-y-1">
+                <p>Mon - Fri:</p>
+                <p>7:00 AM - 3:30 PM</p>
+                <p>Phone: +421 905 557</p>
+                <p>Gmail : spinkit.shop@gmail.com</p>
+              </div>
             </div>
-          </div>
-          {Object.entries(footerLinks).map(([heading, links]) => (
-            <div key={heading}>
-              <h3 className="font-sans text-xs uppercase tracking-[0.15em] text-muted mb-4">
-                {heading}
-              </h3>
+            {/* Column 2: Support */}
+            <div>
+              <h4 className="font-sans text-sm font-semibold text-white/70 mb-3">
+                Support
+              </h4>
               <ul className="space-y-2">
-                {links.map((link) => (
+                {supportLinks.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="font-sans text-sm text-text hover:text-muted transition-colors"
+                      className="font-sans text-sm text-white hover:opacity-80 transition-opacity"
                     >
                       {link.label}
                     </Link>
@@ -75,24 +72,64 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
-          ))}
-        </div>
-        <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="font-sans text-xs text-muted">
-            © 2026 Velvety. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            <AdminFooterLink />
-            {socialLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="font-sans text-sm text-muted hover:text-text transition-colors"
-                aria-label={link.label}
-              >
-                {link.icon}
-              </a>
-            ))}
+            {/* Column 3: Company */}
+            <div>
+              <h4 className="font-sans text-sm font-semibold text-white/70 mb-3">
+                Company
+              </h4>
+              <ul className="space-y-2">
+                {companyLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="font-sans text-sm text-white hover:opacity-80 transition-opacity"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Column 4: Social */}
+            <div>
+              <h4 className="font-sans text-sm font-semibold text-white/70 mb-3">
+                Social
+              </h4>
+              <ul className="space-y-2">
+                {socialLinks.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="font-sans text-sm text-white hover:opacity-80 transition-opacity"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom area (inside right block): one line copyright + Trustpilot, then payment icons */}
+          <div className="border-t border-white/10 px-6 py-6 md:py-8 flex flex-col items-center gap-6">
+            <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 text-center sm:text-left">
+              <p className="font-sans text-sm text-white/80 order-2 sm:order-1">
+                © Spinkit.Shop 2026 - All rights reserved. Excellent 4.7 out of 5
+              </p>
+              <div className="flex items-center justify-center gap-2 font-sans text-sm text-white/80 order-1 sm:order-2">
+                <span className="text-[#D6FC45]" aria-hidden>★</span>
+                <span>Trustpilot</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-6" aria-label="Payment methods">
+              <span className="[&_a]:text-white/80 [&_a]:hover:text-white">
+                <AdminFooterLink />
+              </span>
+              <span className="font-sans text-xs text-white/70">Mastercard</span>
+              <span className="font-sans text-xs text-white/70">VISA</span>
+              <span className="font-sans text-xs text-white/70">G Pay</span>
+              <span className="font-sans text-xs text-white/70">Apple Pay</span>
+            </div>
           </div>
         </div>
       </div>

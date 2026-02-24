@@ -52,7 +52,7 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
   const stockLabel = unlimitedStock ? "In stock" : getStockLabel(currentStock);
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-1 min-w-0 flex-wrap items-center gap-3">
       {!outOfStock && (
         <QuantityStepper
           value={quantity}
@@ -66,8 +66,13 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
         variant="primary"
         arrow={false}
         disabled={outOfStock}
+        className="h-11 flex-1 min-w-0 bg-[#CFFF40] border border-[#CFFF40] text-sm md:text-base font-medium hover:bg-[#D8FF70]"
       >
-        {outOfStock ? "Out of stock" : added ? "Added to cart" : "Add to cart"}
+        {outOfStock
+          ? "Out of stock"
+          : added
+            ? "Added to cart"
+            : `Add to Cart - €${currentPrice.toFixed(2)} EUR`}
       </Button>
       {!hideStockLabel && (
         <span

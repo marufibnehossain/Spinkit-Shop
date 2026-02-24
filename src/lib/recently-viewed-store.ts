@@ -1,4 +1,4 @@
-const STORAGE_KEY = "velvety-recently-viewed";
+const STORAGE_KEY = "spinkit-recently-viewed";
 const MAX_ITEMS = 6;
 
 export function getRecentlyViewedSlugs(): string[] {

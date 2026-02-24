@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import type { Product, Category } from "@/lib/data";
 
+const HAS_DATABASE_URL = !!process.env.DATABASE_URL;
+
 function parseProduct(dbProduct: {
   id: string;
   slug: string;
@@ -40,7 +42,16 @@ function parseProduct(dbProduct: {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const dbProducts = await prisma.$queryRawUnsafe<Array<{
+  if (!HAS_DATABASE_URL) return [];
+
+  const dbProducts = await (prisma as any).product.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      category: {
+        select: { slug: true },
+      },
+    },
+  }) as Array<{
     id: string;
     slug: string;
     productCode: string | null;
@@ -50,43 +61,50 @@ export async function getProducts(): Promise<Product[]> {
     rating: number;
     reviewCount: number;
     images: string;
-    categoryId: string;
     tags: string;
     shortDesc: string;
     longDesc: string | null;
     ingredients: string | null;
     howToUse: string | null;
     stock: number;
-    trackInventory?: number;
+    trackInventory?: boolean;
     badge: string | null;
-    categorySlug: string;
-  }>>(
-    `SELECT p.*, c.slug as categorySlug FROM Product p LEFT JOIN Category c ON p.categoryId = c.id ORDER BY p.createdAt DESC`
+    category?: { slug: string } | null;
+  }>;
+
+  return dbProducts.map((p) =>
+    parseProduct({
+      id: p.id,
+      slug: p.slug,
+      productCode: p.productCode,
+      name: p.name,
+      priceCents: p.priceCents,
+      compareAtCents: p.compareAtCents,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      images: p.images,
+      category: { slug: p.category?.slug || "" },
+      tags: p.tags,
+      shortDesc: p.shortDesc,
+      longDesc: p.longDesc,
+      ingredients: p.ingredients,
+      howToUse: p.howToUse,
+      stock: p.stock,
+    })
   );
-  return dbProducts.map(p => ({
-    id: p.id,
-    slug: p.slug,
-    productCode: p.productCode ?? undefined,
-    name: p.name,
-    price: p.priceCents / 100,
-    compareAt: p.compareAtCents ? p.compareAtCents / 100 : undefined,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    images: JSON.parse(p.images) as string[],
-    category: p.categorySlug || "",
-    tags: JSON.parse(p.tags) as string[],
-    shortDesc: p.shortDesc,
-    longDesc: p.longDesc ?? undefined,
-    ingredients: p.ingredients ?? undefined,
-    howToUse: p.howToUse ?? undefined,
-    stock: p.stock,
-    trackInventory: p.trackInventory === undefined ? true : Boolean(p.trackInventory),
-    badge: p.badge ?? undefined,
-  }));
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const dbProducts = await prisma.$queryRawUnsafe<Array<{
+  if (!HAS_DATABASE_URL) return null;
+
+  const p = await (prisma as any).product.findUnique({
+    where: { slug },
+    include: {
+      category: { select: { slug: true } },
+      attributes: true,
+      variations: true,
+    },
+  }) as ({
     id: string;
     slug: string;
     productCode: string | null;
@@ -96,25 +114,28 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     rating: number;
     reviewCount: number;
     images: string;
-    categoryId: string;
     tags: string;
     shortDesc: string;
     longDesc: string | null;
     ingredients: string | null;
     howToUse: string | null;
     stock: number;
-    trackInventory?: number;
+    trackInventory?: boolean;
     badge: string | null;
-  }>>(
-    `SELECT p.*, c.slug as categorySlug FROM Product p LEFT JOIN Category c ON p.categoryId = c.id WHERE p.slug = ?`,
-    slug
-  );
-  if (dbProducts.length === 0) return null;
-  const p = dbProducts[0];
-  const categories = await prisma.$queryRawUnsafe<Array<{ slug: string }>>(
-    `SELECT slug FROM Category WHERE id = ?`,
-    p.categoryId
-  );
+    category?: { slug: string } | null;
+    attributes: Array<{ id: string; name: string; values: string }>;
+    variations: Array<{
+      id: string;
+      attributes: string;
+      priceCents: number | null;
+      stock: number;
+      sku: string | null;
+      images: string | null;
+    }>;
+  } | null);
+
+  if (!p) return null;
+
   const product: Product = {
     id: p.id,
     slug: p.slug,
@@ -125,58 +146,51 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     rating: p.rating,
     reviewCount: p.reviewCount,
     images: JSON.parse(p.images) as string[],
-    category: categories[0]?.slug || "",
+    category: p.category?.slug || "",
     tags: JSON.parse(p.tags) as string[],
     shortDesc: p.shortDesc,
     longDesc: p.longDesc ?? undefined,
     ingredients: p.ingredients ?? undefined,
     howToUse: p.howToUse ?? undefined,
     stock: p.stock,
-    trackInventory: p.trackInventory === undefined ? true : Boolean(p.trackInventory),
+    trackInventory: p.trackInventory !== false,
     badge: p.badge ?? undefined,
   };
-  // Load attributes and variations
-    const attrs = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      name: string;
-      values: string;
-    }>>(
-      'SELECT id, name, "values" FROM ProductAttribute WHERE productId = ? ORDER BY name ASC',
-      p.id
-    );
-  const vars = await prisma.$queryRawUnsafe<Array<{
-    id: string;
-    attributes: string;
-    priceCents: number | null;
-    stock: number;
-    sku: string | null;
-    images: string | null;
-  }>>(
-    "SELECT id, attributes, priceCents, stock, sku, images FROM ProductVariation WHERE productId = ?",
-    p.id
-  );
-  if (attrs.length > 0) {
-    product.attributes = attrs.map(a => ({
+
+  if (p.attributes.length > 0) {
+    product.attributes = p.attributes.map((a) => ({
       id: a.id,
       name: a.name,
       values: JSON.parse(a.values) as string[],
     }));
   }
-  if (vars.length > 0) {
-    product.variations = vars.map(v => ({
+
+  if (p.variations.length > 0) {
+    product.variations = p.variations.map((v) => ({
       id: v.id,
       attributes: JSON.parse(v.attributes) as Record<string, string>,
       price: v.priceCents ? v.priceCents / 100 : null,
       stock: v.stock,
-      sku: v.sku ?? undefined,
-      images: v.images ? JSON.parse(v.images) as string[] : undefined,
+      sku: v.sku ?? null,
+      images: v.images ? (JSON.parse(v.images) as string[]) : null,
     }));
   }
+
   return product;
 }
 
 export async function getFeaturedProducts(limit = 3): Promise<Product[]> {
-  const dbProducts = await prisma.$queryRawUnsafe<Array<{
+  if (!HAS_DATABASE_URL) return [];
+
+  const dbProducts = await (prisma as any).product.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      category: {
+        select: { slug: true },
+      },
+    },
+  }) as Array<{
     id: string;
     slug: string;
     productCode: string | null;
@@ -186,21 +200,18 @@ export async function getFeaturedProducts(limit = 3): Promise<Product[]> {
     rating: number;
     reviewCount: number;
     images: string;
-    categoryId: string;
     tags: string;
     shortDesc: string;
     longDesc: string | null;
     ingredients: string | null;
     howToUse: string | null;
     stock: number;
-    trackInventory?: number;
+    trackInventory?: boolean;
     badge: string | null;
-    categorySlug: string;
-  }>>(
-    `SELECT p.*, c.slug as categorySlug FROM Product p LEFT JOIN Category c ON p.categoryId = c.id ORDER BY p.createdAt DESC LIMIT ?`,
-    limit
-  );
-  return dbProducts.map(p => ({
+    category?: { slug: string } | null;
+  }>;
+
+  return dbProducts.map((p) => ({
     id: p.id,
     slug: p.slug,
     productCode: p.productCode ?? undefined,
@@ -210,42 +221,49 @@ export async function getFeaturedProducts(limit = 3): Promise<Product[]> {
     rating: p.rating,
     reviewCount: p.reviewCount,
     images: JSON.parse(p.images) as string[],
-    category: p.categorySlug || "",
+    category: p.category?.slug || "",
     tags: JSON.parse(p.tags) as string[],
     shortDesc: p.shortDesc,
     longDesc: p.longDesc ?? undefined,
     ingredients: p.ingredients ?? undefined,
     howToUse: p.howToUse ?? undefined,
     stock: p.stock,
-    trackInventory: p.trackInventory === undefined ? true : Boolean(p.trackInventory),
+    trackInventory: p.trackInventory !== false,
     badge: p.badge ?? undefined,
   }));
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
-  const categorySlug = product.category;
-  const tagMatch = product.tags.length > 0 ? `%${product.tags[0]}%` : null;
-  let query = `SELECT p.*, c.slug as categorySlug FROM Product p LEFT JOIN Category c ON p.categoryId = c.id WHERE p.id != ?`;
-  const params: any[] = [product.id];
-  
-  const conditions: string[] = [];
+  if (!HAS_DATABASE_URL) return [];
+
+  const categorySlug = product.category || null;
+  const firstTag = product.tags[0] || null;
+
+  const orConditions: any[] = [];
   if (categorySlug) {
-    conditions.push(`c.slug = ?`);
-    params.push(categorySlug);
+    orConditions.push({ category: { slug: categorySlug } });
   }
-  if (tagMatch) {
-    conditions.push(`p.tags LIKE ?`);
-    params.push(tagMatch);
+  if (firstTag) {
+    orConditions.push({
+      tags: { contains: firstTag, mode: "insensitive" as const },
+    });
   }
-  
-  if (conditions.length > 0) {
-    query += ` AND (${conditions.join(" OR ")})`;
+
+  const where: any = {
+    id: { not: product.id },
+  };
+  if (orConditions.length > 0) {
+    where.OR = orConditions;
   }
-  
-  query += ` ORDER BY p.createdAt DESC LIMIT ?`;
-  params.push(limit);
-  
-  const dbProducts = await prisma.$queryRawUnsafe<Array<{
+
+  const dbProducts = await (prisma as any).product.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      category: { select: { slug: true } },
+    },
+  }) as Array<{
     id: string;
     slug: string;
     productCode: string | null;
@@ -255,45 +273,58 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
     rating: number;
     reviewCount: number;
     images: string;
-    categoryId: string;
     tags: string;
     shortDesc: string;
     longDesc: string | null;
     ingredients: string | null;
     howToUse: string | null;
     stock: number;
-    trackInventory?: number;
+    trackInventory?: boolean;
     badge: string | null;
-    categorySlug: string;
-  }>>(query, ...params);
-  
-  return dbProducts.map(p => ({
-    id: p.id,
-    slug: p.slug,
-    productCode: p.productCode ?? undefined,
-    name: p.name,
-    price: p.priceCents / 100,
-    compareAt: p.compareAtCents ? p.compareAtCents / 100 : undefined,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    images: JSON.parse(p.images) as string[],
-    category: p.categorySlug || "",
-    tags: JSON.parse(p.tags) as string[],
-    shortDesc: p.shortDesc,
-    longDesc: p.longDesc ?? undefined,
-    ingredients: p.ingredients ?? undefined,
-    howToUse: p.howToUse ?? undefined,
-    stock: p.stock,
-    trackInventory: p.trackInventory === undefined ? true : Boolean(p.trackInventory),
-    badge: p.badge ?? undefined,
-  }));
+    category?: { slug: string } | null;
+  }>;
+
+  return dbProducts.map((p) =>
+    parseProduct({
+      id: p.id,
+      slug: p.slug,
+      productCode: p.productCode,
+      name: p.name,
+      priceCents: p.priceCents,
+      compareAtCents: p.compareAtCents,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      images: p.images,
+      category: { slug: p.category?.slug || "" },
+      tags: p.tags,
+      shortDesc: p.shortDesc,
+      longDesc: p.longDesc,
+      ingredients: p.ingredients,
+      howToUse: p.howToUse,
+      stock: p.stock,
+    })
+  );
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
+  if (!HAS_DATABASE_URL) return [];
   const q = query.toLowerCase().trim();
   if (!q) return getProducts();
-  const searchTerm = `%${q}%`;
-  const dbProducts = await prisma.$queryRawUnsafe<Array<{
+
+  const dbProducts = await (prisma as any).product.findMany({
+    where: {
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { shortDesc: { contains: q, mode: "insensitive" } },
+        { tags: { contains: q, mode: "insensitive" } },
+        { category: { slug: { contains: q, mode: "insensitive" } } },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      category: { select: { slug: true } },
+    },
+  }) as Array<{
     id: string;
     slug: string;
     productCode: string | null;
@@ -303,49 +334,51 @@ export async function searchProducts(query: string): Promise<Product[]> {
     rating: number;
     reviewCount: number;
     images: string;
-    categoryId: string;
     tags: string;
     shortDesc: string;
     longDesc: string | null;
     ingredients: string | null;
     howToUse: string | null;
     stock: number;
-    trackInventory?: number;
+    trackInventory?: boolean;
     badge: string | null;
-    categorySlug: string;
-  }>>(
-    `SELECT p.*, c.slug as categorySlug FROM Product p LEFT JOIN Category c ON p.categoryId = c.id WHERE LOWER(p.name) LIKE ? OR LOWER(p.shortDesc) LIKE ? OR LOWER(p.tags) LIKE ? OR LOWER(c.slug) LIKE ? ORDER BY p.createdAt DESC`,
-    searchTerm,
-    searchTerm,
-    searchTerm,
-    searchTerm
+    category?: { slug: string } | null;
+  }>;
+
+  return dbProducts.map((p) =>
+    parseProduct({
+      id: p.id,
+      slug: p.slug,
+      productCode: p.productCode,
+      name: p.name,
+      priceCents: p.priceCents,
+      compareAtCents: p.compareAtCents,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      images: p.images,
+      category: { slug: p.category?.slug || "" },
+      tags: p.tags,
+      shortDesc: p.shortDesc,
+      longDesc: p.longDesc,
+      ingredients: p.ingredients,
+      howToUse: p.howToUse,
+      stock: p.stock,
+    })
   );
-  return dbProducts.map(p => ({
-    id: p.id,
-    slug: p.slug,
-    productCode: p.productCode ?? undefined,
-    name: p.name,
-    price: p.priceCents / 100,
-    compareAt: p.compareAtCents ? p.compareAtCents / 100 : undefined,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    images: JSON.parse(p.images) as string[],
-    category: p.categorySlug || "",
-    tags: JSON.parse(p.tags) as string[],
-    shortDesc: p.shortDesc,
-    longDesc: p.longDesc ?? undefined,
-    ingredients: p.ingredients ?? undefined,
-    howToUse: p.howToUse ?? undefined,
-    stock: p.stock,
-    trackInventory: p.trackInventory === undefined ? true : Boolean(p.trackInventory),
-    badge: p.badge ?? undefined,
-  }));
 }
 
 export async function getProductsBySlugs(slugs: string[]): Promise<Product[]> {
+  if (!HAS_DATABASE_URL) return [];
   if (slugs.length === 0) return [];
-  const placeholders = slugs.map(() => "?").join(",");
-  const dbProducts = await prisma.$queryRawUnsafe<Array<{
+
+  const dbProducts = await (prisma as any).product.findMany({
+    where: {
+      slug: { in: slugs },
+    },
+    include: {
+      category: { select: { slug: true } },
+    },
+  }) as Array<{
     id: string;
     slug: string;
     productCode: string | null;
@@ -355,53 +388,64 @@ export async function getProductsBySlugs(slugs: string[]): Promise<Product[]> {
     rating: number;
     reviewCount: number;
     images: string;
-    categoryId: string;
     tags: string;
     shortDesc: string;
     longDesc: string | null;
     ingredients: string | null;
     howToUse: string | null;
     stock: number;
-    trackInventory?: number;
+    trackInventory?: boolean;
     badge: string | null;
-    categorySlug: string;
-  }>>(
-    `SELECT p.*, c.slug as categorySlug FROM Product p LEFT JOIN Category c ON p.categoryId = c.id WHERE p.slug IN (${placeholders})`,
-    ...slugs
+    category?: { slug: string } | null;
+  }>;
+
+  return dbProducts.map((p) =>
+    parseProduct({
+      id: p.id,
+      slug: p.slug,
+      productCode: p.productCode,
+      name: p.name,
+      priceCents: p.priceCents,
+      compareAtCents: p.compareAtCents,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      images: p.images,
+      category: { slug: p.category?.slug || "" },
+      tags: p.tags,
+      shortDesc: p.shortDesc,
+      longDesc: p.longDesc,
+      ingredients: p.ingredients,
+      howToUse: p.howToUse,
+      stock: p.stock,
+    })
   );
-  return dbProducts.map(p => ({
-    id: p.id,
-    slug: p.slug,
-    productCode: p.productCode ?? undefined,
-    name: p.name,
-    price: p.priceCents / 100,
-    compareAt: p.compareAtCents ? p.compareAtCents / 100 : undefined,
-    rating: p.rating,
-    reviewCount: p.reviewCount,
-    images: JSON.parse(p.images) as string[],
-    category: p.categorySlug || "",
-    tags: JSON.parse(p.tags) as string[],
-    shortDesc: p.shortDesc,
-    longDesc: p.longDesc ?? undefined,
-    ingredients: p.ingredients ?? undefined,
-    howToUse: p.howToUse ?? undefined,
-    stock: p.stock,
-    trackInventory: p.trackInventory === undefined ? true : Boolean(p.trackInventory),
-    badge: p.badge ?? undefined,
-  }));
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const dbCategories = await prisma.$queryRawUnsafe<Array<{
+  if (!HAS_DATABASE_URL) return [];
+
+  const dbCategories = await (prisma as any).category.findMany({
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      image: true,
+      parentId: true,
+    },
+  }) as Array<{
     id: string;
     name: string;
     slug: string;
-  }>>(
-    `SELECT id, name, slug FROM Category ORDER BY name ASC`
-  );
+    image?: string | null;
+    parentId?: string | null;
+  }>;
+
   return dbCategories.map((c) => ({
     id: c.id,
     name: c.name,
     slug: c.slug,
+    image: c.image ?? null,
+    parentId: c.parentId ?? null,
   }));
 }

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import type { Product, ProductVariation } from "@/lib/data";
 import RatingStars from "@/components/RatingStars";
 import Accordion from "@/components/Accordion";
 import VariationSelector from "./VariationSelector";
 import AddToCartButton from "./AddToCartButton";
-import ProductGallery from "./ProductGallery";
+import { useWishlistStore } from "@/lib/wishlist-store";
 
 interface ProductDetailsProps {
   product: Product;
@@ -26,6 +27,38 @@ export default function ProductDetails({
 
   const selectedVariation = externalVariation ?? internalVariation;
   const selectedAttributes = externalAttributes ?? internalAttributes;
+  const { data: session } = useSession();
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
+  const isInWishlist = useWishlistStore((s) => s.isInWishlist(product.id));
+  const img = product.images[0] ?? "/images/placeholder.svg";
+
+  async function handleWishlist() {
+    const item = {
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: img,
+    };
+    const adding = !isInWishlist;
+    toggleWishlist(item);
+    if (session) {
+      try {
+        if (adding) {
+          await fetch("/api/account/wishlist", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId: product.id }),
+          });
+        } else {
+          await fetch(
+            `/api/account/wishlist?productId=${encodeURIComponent(product.id)}`,
+            { method: "DELETE" }
+          );
+        }
+      } catch (_) {}
+    }
+  }
 
   function handleVariationChange(variation: ProductVariation | null, attrs: Record<string, string>) {
     if (onVariationChange) {
@@ -42,52 +75,81 @@ export default function ProductDetails({
 
   const accordionItems = [
     {
-      title: "Ingredients",
-      content: product.ingredients ?? "Full ingredient list available on request. All our formulations are free from parabens, sulfates, and synthetic fragrances.",
+      title: "Description",
+      content: product.longDesc ?? product.shortDesc,
     },
     {
-      title: "How to use",
-      content: product.howToUse ?? "Apply as needed. For best results, use as part of your daily routine.",
+      title: "More information",
+      content:
+        product.ingredients || product.howToUse
+          ? [product.ingredients, product.howToUse].filter(Boolean).join("\n\n")
+          : "For detailed specifications, sizing advice, or help choosing the right setup, get in touch with our team and we’ll be happy to help.",
     },
     {
-      title: "Shipping & returns",
-      content: "Free shipping on orders over $50. We offer a 30-day return policy for unopened items. Please contact us for returns.",
+      title: "Materials & care",
+      content:
+        "Store your equipment in a dry place away from direct sunlight. Clean surfaces with a soft, slightly damp cloth and avoid harsh chemicals to keep performance consistent.",
     },
   ];
 
-  const stockLabel = unlimitedStock
+  const urgentStock = !unlimitedStock && currentStock > 0 && currentStock <= 5;
+  const stockText = unlimitedStock
     ? "In stock"
     : currentStock === 0
       ? "Out of stock"
-      : currentStock <= 5
-        ? `${currentStock} left`
+      : urgentStock
+        ? `Only ${currentStock} stocks left`
         : "In stock";
 
   return (
     <div className="lg:sticky lg:top-24">
-      {product.productCode && (
-        <p className="font-sans text-xs text-muted mb-1">{product.productCode}</p>
-      )}
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        {product.category && (
+          <span className="inline-flex items-center rounded px-2.5 py-0.5 bg-[#CFFF40] font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-text">
+            {product.category.replace(/-/g, " ")}
+          </span>
+        )}
+        {product.productCode && (
+          <p className="font-sans text-[11px] text-muted mt-0.5">{product.productCode}</p>
+        )}
+      </div>
       <h1 className="font-sans text-2xl md:text-3xl font-medium text-text">
         {product.name}
       </h1>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <RatingStars rating={product.rating} reviewCount={product.reviewCount} />
-        <span className="font-sans text-xl font-medium text-text">
-          ${currentPrice.toFixed(2)}
-        </span>
-        {product.compareAt != null && (
-          <span className="font-sans text-sm text-muted line-through">
-            ${product.compareAt}
+        {product.reviewCount > 0 && (
+          <span className="font-sans text-xs text-muted">
+            {product.reviewCount} review{product.reviewCount !== 1 ? "s" : ""}
           </span>
         )}
-        <span
-          className={`font-sans text-sm ${unlimitedStock || currentStock > 5 ? "text-muted" : currentStock === 0 ? "text-red-600" : "text-amber-600"}`}
-        >
-          {stockLabel}
-        </span>
       </div>
-      <p className="mt-3 font-sans text-muted leading-relaxed text-sm">
+      <p className="mt-3 font-sans text-2xl md:text-3xl font-semibold text-text">
+        €{currentPrice.toFixed(2)} EUR
+      </p>
+      {product.compareAt != null && (
+        <p className="mt-1 font-sans text-sm text-muted line-through">
+          €{product.compareAt.toFixed(2)} EUR
+        </p>
+      )}
+      <p
+        className={`mt-1 flex items-center gap-2 font-sans text-sm ${
+          unlimitedStock || currentStock > 5
+            ? "text-muted"
+            : currentStock === 0
+              ? "text-red-600"
+              : "text-amber-600"
+        }`}
+      >
+        {currentStock > 0 && (
+          <span
+            className="inline-block h-2 w-2 rounded-full bg-black"
+            aria-hidden
+          />
+        )}
+        {stockText}
+      </p>
+      <p className="mt-4 font-sans text-muted leading-relaxed text-sm">
         {product.shortDesc}
       </p>
 
@@ -103,18 +165,42 @@ export default function ProductDetails({
             />
             <div>
               <p className="font-sans text-sm font-medium text-text mb-2">Quantity</p>
-              <AddToCartButton
-                product={product}
-                selectedVariation={selectedVariation}
-                selectedAttributes={selectedAttributes}
-                hideStockLabel
-              />
+              <div className="flex w-full items-center gap-3">
+                <AddToCartButton
+                  product={product}
+                  selectedVariation={selectedVariation}
+                  selectedAttributes={selectedAttributes}
+                  hideStockLabel
+                />
+                <button
+                  type="button"
+                  onClick={handleWishlist}
+                  className="h-11 w-11 shrink-0 rounded-lg border border-border bg-bg flex items-center justify-center text-text hover:bg-surface transition-colors"
+                  aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  <span className={`text-xl ${isInWishlist ? "text-red-500" : "text-muted"}`}>
+                    {isInWishlist ? "♥" : "♡"}
+                  </span>
+                </button>
+              </div>
             </div>
           </>
         ) : (
           <>
             <p className="font-sans text-sm font-medium text-text mb-2">Quantity</p>
-            <AddToCartButton product={product} />
+            <div className="flex w-full items-center gap-3">
+              <AddToCartButton product={product} hideStockLabel />
+              <button
+                type="button"
+                onClick={handleWishlist}
+                className="h-11 w-11 shrink-0 rounded-lg border border-border bg-bg flex items-center justify-center text-text hover:bg-surface transition-colors"
+                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                <span className={`text-xl ${isInWishlist ? "text-red-500" : "text-muted"}`}>
+                  {isInWishlist ? "♥" : "♡"}
+                </span>
+              </button>
+            </div>
           </>
         )}
       </div>

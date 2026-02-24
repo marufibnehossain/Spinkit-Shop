@@ -1,11 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data";
-import ProductCard from "@/components/ProductCard";
 import ProductWithVariations from "./ProductWithVariations";
-import ProductReviews from "./ProductReviews";
-import RecentlyViewed from "@/components/RecentlyViewed";
+import RelatedProductsCarousel from "./RelatedProductsCarousel";
 import { RecordRecentlyViewed } from "./RecordRecentlyViewed";
 
 interface ProductPageProps {
@@ -18,7 +16,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   if (!product) {
     return { title: "Product not found" };
   }
-  const title = `${product.name} | Velvety`;
+  const title = `${product.name} | Spinkit Shop`;
   const description = product.shortDesc.slice(0, 160);
   const image = product.images[0] ? (product.images[0].startsWith("http") ? product.images[0] : undefined) : undefined;
   return {
@@ -46,7 +44,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const related = await getRelatedProducts(product);
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://velvety.example.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://spinkit-shop.com";
   const productUrl = `${baseUrl}/product/${product.slug}`;
   const imageUrl = product.images[0]
     ? product.images[0].startsWith("http")
@@ -65,7 +63,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     offers: {
       "@type": "Offer",
       price: product.price,
-      priceCurrency: "USD",
+      priceCurrency: "EUR",
       availability:
         product.trackInventory === false || product.stock > 0
           ? "https://schema.org/InStock"
@@ -87,27 +85,41 @@ export default async function ProductPage({ params }: ProductPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
-        <RecordRecentlyViewed slug={product.slug} />
-        <ProductWithVariations product={product} />
 
-        <ProductReviews slug={product.slug} />
+      {/* Main product section on warm beige background */}
+      <section className="border-b border-border bg-bg">
+        <div className="mx-auto max-w-[1315px] px-4 md:px-6 py-8 md:py-12">
+          <RecordRecentlyViewed slug={product.slug} />
+          <div className="mt-6">
+            <ProductWithVariations product={product} />
+          </div>
 
-        {related.length > 0 && (
-          <section className="mt-16 pt-12 border-t border-border">
-            <h2 className="font-sans text-xl font-medium text-text mb-8">
-              Related products
-            </h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {related.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
+          {/* You may also like – sits directly under the main product area */}
+          {related.length > 0 && (
+            <div className="mt-16 pt-10 border-t border-border">
+              <h2 className="font-sans text-xl md:text-2xl font-bold text-text mb-6 md:mb-8">
+                YOU MAY ALSO LIKE
+              </h2>
+              <RelatedProductsCarousel products={related.slice(0, 8)} />
             </div>
-          </section>
-        )}
+          )}
+        </div>
+      </section>
 
-        <RecentlyViewed currentSlug={product.slug} />
-      </div>
+      {/* Bottom image banner, full-width and flush with footer */}
+      <section className="w-full overflow-hidden rounded-none">
+        <div className="relative w-full aspect-[21/9] min-h-[200px] bg-[#f5f5f0]">
+          <Image
+            src="/images/product-page-banner.png"
+            alt="Table tennis paddles and ball on blue table"
+            fill
+            className="object-cover object-center"
+            sizes="(min-width: 1280px) 1280px, 100vw"
+            priority={false}
+          />
+        </div>
+      </section>
+
     </div>
   );
 }

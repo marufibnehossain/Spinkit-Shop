@@ -27,7 +27,20 @@ export async function POST(req: Request) {
       shipping,
       total,
       coupon,
-    } = body;
+    } = body as {
+      email: string;
+      name?: string;
+      address: string;
+      city: string;
+      zip: string;
+      country: string;
+      items: ItemInput[];
+      subtotal: number;
+      discount?: number;
+      shipping: number;
+      total: number;
+      coupon?: string | null;
+    };
 
     if (
       !email ||
@@ -53,52 +66,42 @@ export async function POST(req: Request) {
     const discountCents = Math.round((discount || 0) * 100);
     const shippingCents = Math.round(shipping * 100);
     const totalCents = Math.round(total * 100);
-    const orderId = `ord-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
     const couponCode = typeof coupon === "string" ? coupon.trim() || null : null;
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO "Order" (id, email, name, address, city, zip, country, subtotalCents, discountCents, shippingCents, totalCents, couponCode, status, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', datetime('now'), datetime('now'))`,
-      orderId,
-      email.trim().toLowerCase(),
-      typeof name === "string" ? name.trim() || null : null,
-      String(address).trim(),
-      String(city).trim(),
-      String(zip).trim(),
-      String(country).trim(),
-      subtotalCents,
-      discountCents,
-      shippingCents,
-      totalCents,
-      couponCode
-    );
-    if (couponCode) {
-      await prisma.$executeRawUnsafe(
-        "UPDATE Coupon SET usedCount = COALESCE(usedCount, 0) + 1 WHERE code = ?",
-        couponCode.toUpperCase()
-      );
-    }
 
-    for (const i of items as ItemInput[]) {
-      const itemId = `oi-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      const productId = i.productId ?? "unknown";
-      const itemName = String(i.name);
-      const priceCents = Math.round(Number(i.price) * 100);
-      const quantity = Math.max(1, Math.floor(Number(i.quantity) || 1));
-      const variationId = i.variationId ?? null;
-      const variationLabel = i.variationLabel ?? null;
-      await prisma.$executeRawUnsafe(
-        `INSERT INTO OrderItem (id, orderId, productId, name, priceCents, quantity, variationId, variationLabel)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        itemId,
-        orderId,
-        productId,
-        itemName,
-        priceCents,
-        quantity,
-        variationId,
-        variationLabel
-      );
+    const order = await prisma.order.create({
+      data: {
+        email: email.trim().toLowerCase(),
+        name: typeof name === "string" ? name.trim() || null : null,
+        address: String(address).trim(),
+        city: String(city).trim(),
+        zip: String(zip).trim(),
+        country: String(country).trim(),
+        subtotalCents,
+        discountCents,
+        shippingCents,
+        totalCents,
+        couponCode,
+        status: "PENDING",
+        items: {
+          create: (items as ItemInput[]).map((i) => ({
+            productId: i.productId ?? "unknown",
+            name: String(i.name),
+            priceCents: Math.round(Number(i.price) * 100),
+            quantity: Math.max(1, Math.floor(Number(i.quantity) || 1)),
+            variationId: i.variationId ?? null,
+            variationLabel: i.variationLabel ?? null,
+          })),
+        },
+      },
+      include: { items: true },
+    });
+
+    if (couponCode) {
+      await prisma.coupon.updateMany({
+        where: { code: couponCode.toUpperCase() },
+        data: { usedCount: { increment: 1 } },
+      });
     }
 
     try {
@@ -119,7 +122,7 @@ export async function POST(req: Request) {
       // Order already created; email failure is non-fatal
     }
 
-    return NextResponse.json({ ok: true, orderId });
+    return NextResponse.json({ ok: true, orderId: order.id });
   } catch (e) {
     console.error("[Order] Create error:", e);
     return NextResponse.json(

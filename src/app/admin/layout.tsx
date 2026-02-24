@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <aside className="w-56 shrink-0 border-r border-border bg-surface flex flex-col">
         <div className="p-4 border-b border-border">
           <Link href="/admin" className="font-sans text-lg font-semibold text-sage-dark uppercase tracking-wide">
-            Velvety Admin
+            Spinkit Admin
           </Link>
         </div>
         <nav className="p-2 flex-1" aria-label="Admin navigation">

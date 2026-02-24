@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Sans_3 } from "next/font/google";
+import { Oswald, DM_Sans } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import StoreShell from "@/components/StoreShell";
 
-const playfair = Playfair_Display({
+/** Headings: Obviously-style (condensed, bold). Use next/font/local with Obviously.woff2 if you have a license. */
+const displayFont = Oswald({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
 });
 
-const sourceSans = Source_Sans_3({
+/** Body: Neue Montreal–style (clean geometric sans). Use next/font/local with Neue Montreal if you have a license. */
+const sansFont = DM_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Velvety — Beauty & Wellness",
-  description: "Nature-inspired skincare and wellness",
+  title: "Spinkit Shop — Table Tennis Equipment",
+  description: "Play Better. Play Stronger. Play Smarter.",
 };
 
 export default function RootLayout({
@@ -27,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${sourceSans.variable}`}>
+    <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`}>
       <body className="min-h-screen flex flex-col">
         <SessionProvider>
           <StoreShell>{children}</StoreShell>

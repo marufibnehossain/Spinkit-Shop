@@ -7,13 +7,15 @@ type Category = {
   id: string;
   name: string;
   slug: string;
+  image?: string | null;
+  parentId?: string | null;
 };
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<"new" | Category | null>(null);
-  const [form, setForm] = useState({ name: "", slug: "" });
+  const [form, setForm] = useState({ name: "", slug: "", image: "", parentId: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,13 +32,18 @@ export default function AdminCategoriesPage() {
   }
 
   function openNew() {
-    setForm({ name: "", slug: "" });
+    setForm({ name: "", slug: "", image: "", parentId: "" });
     setError("");
     setModal("new");
   }
 
   function openEdit(c: Category) {
-    setForm({ name: c.name, slug: c.slug });
+    setForm({
+      name: c.name,
+      slug: c.slug,
+      image: c.image ?? "",
+      parentId: c.parentId ?? "",
+    });
     setError("");
     setModal(c);
   }
@@ -54,6 +61,8 @@ export default function AdminCategoriesPage() {
       const payload = {
         name: form.name.trim(),
         slug: form.slug.trim() || form.name.toLowerCase().trim().replace(/\s+/g, "-"),
+        image: form.image.trim() || null,
+        parentId: form.parentId || null,
       };
       if (modal === "new") {
         const res = await fetch("/api/admin/categories", {
@@ -118,19 +127,29 @@ export default function AdminCategoriesPage() {
               <tr className="border-b border-border bg-sage-1/50">
                 <th className="text-left p-3 font-medium text-text">Name</th>
                 <th className="text-left p-3 font-medium text-text">Slug</th>
+                <th className="text-left p-3 font-medium text-text">Parent</th>
+                <th className="text-left p-3 font-medium text-text">Image</th>
                 <th className="p-3" aria-hidden />
               </tr>
             </thead>
             <tbody>
               {categories.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="p-6 text-muted text-center">No categories yet</td>
+                  <td colSpan={5} className="p-6 text-muted text-center">No categories yet</td>
                 </tr>
               ) : (
                 categories.map((c) => (
                   <tr key={c.id} className="border-b border-border last:border-0">
                     <td className="p-3 font-medium text-text">{c.name}</td>
                     <td className="p-3 text-muted">{c.slug}</td>
+                    <td className="p-3 text-muted">
+                      {c.parentId
+                        ? categories.find((p) => p.id === c.parentId)?.name ?? "—"
+                        : "—"}
+                    </td>
+                    <td className="p-3 text-muted max-w-xs truncate">
+                      {c.image || "—"}
+                    </td>
                     <td className="p-3 flex gap-2">
                       <button
                         type="button"
@@ -178,11 +197,52 @@ export default function AdminCategoriesPage() {
                 <input
                   type="text"
                   value={form.slug}
-                  onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      slug: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                    })
+                  }
                   className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
                   required
                 />
-                <p className="mt-1 font-sans text-xs text-muted">URL-friendly identifier (e.g., skincare, body-care)</p>
+                <p className="mt-1 font-sans text-xs text-muted">
+                  URL-friendly identifier (e.g., rubbers, blades, bats)
+                </p>
+              </div>
+              <div>
+                <label className="block font-sans text-sm font-medium text-text mb-1">
+                  Parent category
+                </label>
+                <select
+                  value={form.parentId}
+                  onChange={(e) => setForm({ ...form, parentId: e.target.value })}
+                  className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                >
+                  <option value="">No parent (top level)</option>
+                  {categories
+                    .filter((c) => !modal || c.id !== (modal === "new" ? "" : modal.id))
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="block font-sans text-sm font-medium text-text mb-1">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={form.image}
+                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                  className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                  placeholder="/images/categories/rubbers.png"
+                />
+                <p className="mt-1 font-sans text-xs text-muted">
+                  Optional image path or URL to represent this category.
+                </p>
               </div>
               <div className="flex gap-2 pt-2">
                 <Button type="submit" variant="primary" disabled={saving}>

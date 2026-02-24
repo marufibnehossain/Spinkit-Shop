@@ -1,64 +1,123 @@
 import Image from "next/image";
-import SectionHeading from "@/components/SectionHeading";
-import Button from "@/components/Button";
+import Link from "next/link";
+import AboutStats from "@/components/AboutStats";
+import BottomCtaBanner from "@/components/BottomCtaBanner";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-bg">
-      <section className="border-b border-border bg-surface py-16 md:py-24">
-        <div className="container mx-auto px-4 md:px-6">
-          <SectionHeading
-            eyebrow="Our story"
-            title="Velvety beauty and skincare company"
-            subtitle="We believe in the power of nature and tradition. Our formulations blend time-tested ingredients with modern efficacy."
+    <div className="min-h-screen bg-[#F0F0F0]">
+      {/* Hero about banner */}
+      <section className="relative overflow-hidden text-white">
+        <div className="relative h-[400px] flex items-center">
+          <Image
+            src="/images/page-banner.png"
+            alt="About Spinkit.Shop"
+            fill
+            priority
+            className="object-cover object-center"
           />
+          <div className="absolute inset-0 bg-sage-dark/50 mix-blend-multiply" aria-hidden />
+          <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-10 flex flex-col items-center justify-center text-center">
+            <h1 className="font-sans text-[44px] md:text-[64px] lg:text-[72px] font-black leading-none text-[#CFFF40]">
+              ABOUT
+            </h1>
+            <p className="mt-4 max-w-xl font-sans text-sm md:text-base text-hero-text">
+              Born from a passion for table tennis, we&apos;re on a mission to equip
+              players of all levels with the best gear in the game.
+            </p>
+          </div>
         </div>
       </section>
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-sage-1">
+
+      {/* Our story section */}
+      <section className="bg-white py-12 md:py-16 lg:py-20">
+        <div className="container mx-auto px-4 md:px-6 lg:px-10 grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-14 items-start">
+          <div>
+            <h2 className="font-sans text-xl md:text-2xl font-semibold text-[#111827] mb-4">
+              Our Story
+            </h2>
+            <p className="font-sans text-sm md:text-base text-[#4B5563] leading-relaxed mb-4">
+              It started in a small garage in 2010 with two friends, a dream, and an
+              obsession with the perfect spin. We were competitive players frustrated by
+              the lack of quality, affordable equipment that could keep up with our game.
+            </p>
+            <p className="font-sans text-sm md:text-base text-[#4B5563] leading-relaxed mb-4">
+              We work with manufacturers and professional athletes to design products
+              that deliver real performance on the table. Every product in our catalog is
+              tested, approved, and trusted by competitive players.
+            </p>
+            <p className="font-sans text-sm md:text-base text-[#4B5563] leading-relaxed">
+              Today, we serve over 10,000 players across 30+ countries. Our mission
+              hasn&apos;t changed: to create equipment that helps every player — from
+              first-time beginners to elite competitors — unlock their full potential at
+              the table.
+            </p>
+          </div>
+          <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden">
             <Image
-              src="/images/bowl-placeholder.svg"
-              alt="Our process"
+              src="/images/our-story.png"
+              alt="Players enjoying table tennis community"
               fill
               className="object-cover"
             />
           </div>
-          <div>
-            <h2 className="font-sans text-2xl font-medium text-text mb-6">
-              Born from a love of simple rituals
-            </h2>
-            <p className="font-sans text-muted leading-relaxed mb-4">
-              Velvety started with one serum and a commitment to transparency. Today we offer a small range of products that work together—without overwhelm. No endless steps, just what your skin needs.
-            </p>
-            <p className="font-sans text-muted leading-relaxed">
-              Every product is created with intention: for your skin and for the planet. We source carefully, formulate gently, and package responsibly.
-            </p>
-            <Button href="/products" variant="secondary" className="mt-8">
-              Shop the collection
-            </Button>
-          </div>
         </div>
       </section>
-      <section className="bg-sage-1 border-y border-border py-16 md:py-24">
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="font-sans text-2xl font-medium text-text text-center mb-12">
-            Our values
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { title: "100% Organic", desc: "Natural, organic, and vegan ingredients sourced with care." },
-              { title: "Cruelty-free", desc: "We never test on animals. Kind to all living beings." },
-              { title: "Made in USA", desc: "Handcrafted in California with transparency and quality." },
-            ].map((v) => (
-              <div key={v.title} className="text-center">
-                <h3 className="font-sans font-semibold text-text">{v.title}</h3>
-                <p className="mt-2 font-sans text-sm text-muted">{v.desc}</p>
+
+      {/* Three feature tiles */}
+      <section className="bg-[#F9F5EC] py-10 md:py-14">
+        <div className="container mx-auto px-4 md:px-6 lg:px-10 grid md:grid-cols-3 gap-6">
+          {[
+            {
+              title: "Performance",
+              icon: "/images/performance.svg",
+              desc: "Every blade, rubber, and accessory in our catalog is selected for control, speed, and consistency at all levels of play.",
+            },
+            {
+              title: "Innovation",
+              icon: "/images/innovation.svg",
+              desc: "We stay ahead of the curve on the balance of what modern players want: lighter setups, more spin, and durable gear.",
+            },
+            {
+              title: "Community",
+              icon: "/images/community.svg",
+              desc: "From local clubs to international events, we’re a global partner for players who share the same love for the sport.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-none bg-[#2050FC] border border-[#2050FC] px-5 py-6 text-white flex flex-col gap-2"
+            >
+              <div className="relative w-8 h-8 mb-1">
+                <Image
+                  src={item.icon}
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
               </div>
-            ))}
-          </div>
+              <h3 className="font-sans text-base md:text-lg font-semibold">
+                {item.title}
+              </h3>
+              <p className="font-sans text-sm md:text-[15px] text-white/80 leading-relaxed">
+                {item.desc}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
+
+      {/* Stats strip with icons and counters */}
+      <section className="bg-white py-10 md:py-12 border-b border-[#E5E7EB]">
+        <div className="container mx-auto px-4 md:px-6 lg:px-10">
+          <AboutStats />
+        </div>
+      </section>
+
+      {/* Bottom CTA banner */}
+      <BottomCtaBanner />
+
     </div>
   );
 }
+

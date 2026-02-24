@@ -8,14 +8,25 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const categories = await prisma.$queryRawUnsafe<Array<{ id: string; name: string; slug: string; createdAt: Date; updatedAt: Date }>>(
-      "SELECT id, name, slug, createdAt, updatedAt FROM Category ORDER BY name ASC"
+    const categories = await prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        image: true,
+        parentId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return NextResponse.json(
+      categories.map((c) => ({
+        ...c,
+        createdAt: c.createdAt.toISOString(),
+        updatedAt: c.updatedAt.toISOString(),
+      }))
     );
-    return NextResponse.json(categories.map(c => ({
-      ...c,
-      createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : c.createdAt,
-      updatedAt: c.updatedAt instanceof Date ? c.updatedAt.toISOString() : c.updatedAt,
-    })));
   } catch (e) {
     console.error("[Admin] Categories list error:", e);
     return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
@@ -29,24 +40,43 @@ export async function POST(req: Request) {
   }
   try {
     const body = await req.json();
-    const { name, slug } = body;
+    const {
+      name,
+      slug,
+      image,
+      parentId,
+    } = body as {
+      name: string;
+      slug: string;
+      image?: string | null;
+      parentId?: string | null;
+    };
+
     if (!name || !slug) {
       return NextResponse.json({ error: "Name and slug are required" }, { status: 400 });
     }
+
     const slugClean = slug.trim().toLowerCase().replace(/\s+/g, "-");
-    const result = await prisma.$executeRawUnsafe(
-      `INSERT INTO Category (id, name, slug, createdAt, updatedAt) VALUES (?, ?, ?, datetime('now'), datetime('now'))`,
-      `cat-${Date.now()}`,
-      name.trim(),
-      slugClean
-    );
-    const category = await prisma.$queryRawUnsafe<Array<{ id: string; name: string; slug: string }>>(
-      `SELECT id, name, slug FROM Category WHERE slug = ?`,
-      slugClean
-    );
-    return NextResponse.json(category[0]);
+
+    const created = await prisma.category.create({
+      data: {
+        name: name.trim(),
+        slug: slugClean,
+        image: image?.trim() || null,
+        parentId: parentId || null,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        image: true,
+        parentId: true,
+      },
+    });
+
+    return NextResponse.json(created);
   } catch (e: any) {
-    if (e?.code === "SQLITE_CONSTRAINT_UNIQUE" || e?.message?.includes("UNIQUE")) {
+    if (e?.code === "P2002") {
       return NextResponse.json({ error: "A category with this slug already exists" }, { status: 400 });
     }
     console.error("[Admin] Category create error:", e);
