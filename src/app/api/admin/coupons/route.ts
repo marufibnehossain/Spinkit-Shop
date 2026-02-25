@@ -8,24 +8,16 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const coupons = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      code: string;
-      type: string;
-      value: number;
-      minOrderCents: number | null;
-      maxUses: number | null;
-      usedCount: number;
-      expiresAt: Date | null;
-      createdAt: Date;
-    }>>(
-      "SELECT id, code, type, value, minOrderCents, maxUses, usedCount, expiresAt, createdAt FROM Coupon ORDER BY createdAt DESC"
+    const coupons = await prisma.coupon.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(
+      coupons.map((c) => ({
+        ...c,
+        expiresAt: c.expiresAt ? c.expiresAt.toISOString() : null,
+        createdAt: c.createdAt.toISOString(),
+      }))
     );
-    return NextResponse.json(coupons.map(c => ({
-      ...c,
-      expiresAt: c.expiresAt instanceof Date ? c.expiresAt.toISOString() : c.expiresAt,
-      createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : c.createdAt,
-    })));
   } catch (e) {
     console.error("[Admin] Coupons list error:", e);
     return NextResponse.json({ error: "Failed to fetch coupons" }, { status: 500 });
@@ -39,7 +31,14 @@ export async function POST(req: Request) {
   }
   try {
     const body = await req.json();
-    const { code, type, value, minOrderCents, maxUses, expiresAt } = body;
+    const { code, type, value, minOrderCents, maxUses, expiresAt } = body as {
+      code: string;
+      type: string;
+      value: number | string;
+      minOrderCents?: number | string | null;
+      maxUses?: number | string | null;
+      expiresAt?: string | null;
+    };
     const codeStr = typeof code === "string" ? code.trim().toUpperCase() : "";
     if (!codeStr) {
       return NextResponse.json({ error: "Code is required" }, { status: 400 });
@@ -54,42 +53,32 @@ export async function POST(req: Request) {
     if (type === "PERCENT" && valueNum > 100) {
       return NextResponse.json({ error: "Percent value cannot exceed 100" }, { status: 400 });
     }
-    const minCents = minOrderCents != null ? parseInt(String(minOrderCents), 10) : null;
+    const minCentsRaw = minOrderCents != null ? parseInt(String(minOrderCents), 10) : null;
+    const minCents = Number.isNaN(minCentsRaw as number) ? null : (minCentsRaw as number | null);
     const expires = expiresAt ? new Date(expiresAt) : null;
-    const couponId = `coupon-${Date.now()}`;
-    const maxUsesNum = maxUses != null && maxUses !== "" ? parseInt(String(maxUses), 10) : null;
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO Coupon (id, code, type, value, minOrderCents, maxUses, usedCount, expiresAt, createdAt) VALUES (?, ?, ?, ?, ?, ?, 0, ?, datetime('now'))`,
-      couponId,
-      codeStr,
-      type,
-      valueNum,
-      Number.isNaN(minCents) ? null : minCents,
-      maxUsesNum != null && !Number.isNaN(maxUsesNum) && maxUsesNum > 0 ? maxUsesNum : null,
-      expires && !Number.isNaN(expires.getTime()) ? expires.toISOString() : null
-    );
-    const created = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      code: string;
-      type: string;
-      value: number;
-      minOrderCents: number | null;
-      maxUses: number | null;
-      usedCount: number;
-      expiresAt: Date | null;
-      createdAt: Date;
-    }>>(
-      "SELECT id, code, type, value, minOrderCents, maxUses, usedCount, expiresAt, createdAt FROM Coupon WHERE id = ?",
-      couponId
-    );
-    const c = created[0];
+    const maxUsesRaw = maxUses != null && maxUses !== "" ? parseInt(String(maxUses), 10) : null;
+    const maxUsesNum =
+      maxUsesRaw != null && !Number.isNaN(maxUsesRaw) && maxUsesRaw > 0 ? maxUsesRaw : null;
+
+    const created = await prisma.coupon.create({
+      data: {
+        code: codeStr,
+        type,
+        value: valueNum,
+        minOrderCents: minCents,
+        maxUses: maxUsesNum,
+        usedCount: 0,
+        expiresAt: expires && !Number.isNaN(expires.getTime()) ? expires : null,
+      },
+    });
+
     return NextResponse.json({
-      ...c,
-      expiresAt: c.expiresAt instanceof Date ? c.expiresAt.toISOString() : c.expiresAt,
-      createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : c.createdAt,
+      ...created,
+      expiresAt: created.expiresAt ? created.expiresAt.toISOString() : null,
+      createdAt: created.createdAt.toISOString(),
     });
   } catch (e: any) {
-    if (e?.code === "SQLITE_CONSTRAINT_UNIQUE" || e?.message?.includes("UNIQUE")) {
+    if (e?.code === "P2002" || e?.message?.includes("UNIQUE")) {
       return NextResponse.json({ error: "A coupon with this code already exists" }, { status: 400 });
     }
     console.error("[Admin] Coupon create error:", e);

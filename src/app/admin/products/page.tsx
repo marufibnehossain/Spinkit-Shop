@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/Button";
 
@@ -59,6 +59,8 @@ export default function AdminProductsPage() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageDragging, setImageDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     loadData();
@@ -187,6 +189,23 @@ export default function AdminProductsPage() {
       const res = await fetch(`/api/admin/products/${p.id}`, { method: "DELETE" });
       if (res.ok) loadData();
     } catch (_) {}
+  }
+
+  async function handleImageFile(file: File) {
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (data.url) {
+        setForm((prev) => ({
+          ...prev,
+          images: prev.images ? `${prev.images.trim()}, ${data.url}` : data.url,
+        }));
+      }
+    } catch (_) {
+      // ignore upload errors for now
+    }
   }
 
   const filteredProducts = products.filter((p) => {
@@ -554,40 +573,52 @@ export default function AdminProductsPage() {
                 </div>
               </div>
               <div>
-                <label className="block font-sans text-sm font-medium text-text mb-1">Images (comma-separated URLs or upload)</label>
-                <div className="flex gap-2">
+                <label className="block font-sans text-sm font-medium text-text mb-1">
+                  Images
+                </label>
+                {form.images ? (
+                  <p className="mb-2 font-sans text-xs text-muted truncate" title={form.images}>
+                    Current: {form.images}
+                  </p>
+                ) : null}
+                <div
+                  className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-6 text-center cursor-pointer transition-colors ${
+                    imageDragging ? "border-sage-dark bg-sage-1/40" : "border-border bg-surface"
+                  }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setImageDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    setImageDragging(false);
+                  }}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    setImageDragging(false);
+                    const f = e.dataTransfer.files?.[0];
+                    if (f) await handleImageFile(f);
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <p className="font-sans text-xs text-muted">
+                    Drag &amp; drop product images here, or{" "}
+                    <span className="text-sage-dark underline">browse</span>
+                  </p>
+                  <p className="mt-1 font-sans text-[11px] text-muted">
+                    JPG, PNG, GIF, WEBP · Max 5 MB each
+                  </p>
                   <input
-                    type="text"
-                    value={form.images}
-                    onChange={(e) => setForm({ ...form, images: e.target.value })}
-                    placeholder="/images/product.jpg, /uploads/photo.jpg"
-                    className="flex-1 rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      if (f) await handleImageFile(f);
+                      if (e.target) e.target.value = "";
+                    }}
                   />
-                  <label className="shrink-0 px-4 py-2 rounded-lg border border-border bg-surface font-sans text-sm text-text cursor-pointer hover:bg-sage-1/50">
-                    Upload
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/gif,image/webp"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const f = e.target.files?.[0];
-                        if (!f) return;
-                        const fd = new FormData();
-                        fd.append("file", f);
-                        try {
-                          const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-                          const data = await res.json().catch(() => ({}));
-                          if (data.url) {
-                            setForm((prev) => ({
-                              ...prev,
-                              images: prev.images ? `${prev.images.trim()}, ${data.url}` : data.url,
-                            }));
-                          }
-                        } catch (_) {}
-                        e.target.value = "";
-                      }}
-                    />
-                  </label>
                 </div>
               </div>
               <div>

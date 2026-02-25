@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import AboutStats from "@/components/AboutStats";
 import BottomCtaBanner from "@/components/BottomCtaBanner";
+import HomeFAQSection from "@/components/HomeFAQSection";
 
 export default function AboutPage() {
   return (
@@ -117,6 +117,8 @@ export default function AboutPage() {
       {/* Bottom CTA banner */}
       <BottomCtaBanner />
 
+      {/* FAQ section — lime background, heading left, accordion right */}
+      <HomeFAQSection />
     </div>
   );
 }

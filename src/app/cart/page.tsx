@@ -30,15 +30,15 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#F0F0F0]">
-      <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
+      <div className="max-w-[1315px] mx-auto px-4 md:px-6 py-8 md:py-12">
         <h1 className="font-sans text-2xl md:text-3xl font-bold text-text mb-8">
           Cart
         </h1>
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-10">
+        <div className="grid lg:grid-cols-11 gap-8 lg:gap-10">
           {/* Left: Cart items in white card */}
-          <div className="lg:col-span-8">
-            <div className="p-6 md:p-8 rounded-xl border border-[#e5e5e5] bg-white shadow-sm">
-              <ul className="divide-y divide-[#e5e5e5]">
+          <div className="lg:col-span-7">
+            <div className="p-6 md:p-8 rounded-lg border border-[#7c7d7c]">
+              <ul className="divide-y divide-[#7c7d7c]">
                 {items.map((item, index) => (
                   <li
                     key={`${item.productId}-${item.variationId || index}`}
@@ -93,7 +93,7 @@ export default function CartPage() {
 
           {/* Right: Summary card - same style as checkout */}
           <div className="lg:col-span-4">
-            <div className="sticky top-24 bg-[#E9E6E3] rounded-xl border border-[#e0ddd9] p-6 shadow-sm">
+            <div className="sticky top-24 bg-white rounded-none border border-[#e0ddd9] p-6">
               <h2 className="font-sans text-lg font-bold text-text mb-4">
                 Summary
               </h2>
@@ -120,7 +120,7 @@ export default function CartPage() {
               )}
               <Link
                 href="/checkout"
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-none bg-[#CFFF40] text-sage-dark py-3.5 font-sans text-sm font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#CFFF40]/60 focus:ring-offset-2"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-none bg-[#D0F198] text-[#2A2B2A] py-3.5 font-sans text-sm font-bold hover:opacity-90"
               >
                 Proceed to checkout
                 <span aria-hidden>→</span>

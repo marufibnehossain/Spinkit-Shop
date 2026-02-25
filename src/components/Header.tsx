@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/lib/cart-store";
 
 type HeaderVariant = "transparent" | "solid";
@@ -19,7 +19,9 @@ const navLinks = [
 
 function CartCount() {
   const total = useCartStore((s) => s.getTotalItems());
-  if (total === 0) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted || total === 0) return null;
   return (
     <span className="absolute -top-1 -right-2 min-w-[18px] h-[18px] rounded-full bg-sage-dark text-hero-text text-xs font-sans flex items-center justify-center px-1">
       {total > 99 ? "99+" : total}

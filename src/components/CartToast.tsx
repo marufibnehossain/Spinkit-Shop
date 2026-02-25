@@ -20,7 +20,7 @@ export default function CartToast() {
 
   return (
     <div className="fixed bottom-4 right-4 z-[60] max-w-sm w-full px-4">
-      <div className="flex items-center gap-3 rounded-none border border-border bg-bg/95 backdrop-blur-sm shadow-lg px-3 py-3">
+      <div className="flex items-center gap-3 rounded-none border border-border bg-white shadow-lg px-3 py-3">
         <div className="relative w-12 h-12 rounded-md overflow-hidden bg-sage-1 border border-border shrink-0">
           <Image
             src={item.image}

@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
+
+const ADMIN_EMAIL = "admin@spinkit.shop";
+const ADMIN_PASSWORD = "Admin123!";
 
 const categories = [
   { id: "cat-1", name: "Rubbers", slug: "rubbers" },
@@ -231,6 +235,19 @@ const products = [
 ];
 
 async function main() {
+  const adminPasswordHash = await hash(ADMIN_PASSWORD, 12);
+  await prisma.user.upsert({
+    where: { email: ADMIN_EMAIL },
+    update: { passwordHash: adminPasswordHash, role: "ADMIN" },
+    create: {
+      email: ADMIN_EMAIL,
+      passwordHash: adminPasswordHash,
+      name: "Admin",
+      role: "ADMIN",
+    },
+  });
+  console.log("Seeded admin user:", ADMIN_EMAIL, "| Password:", ADMIN_PASSWORD);
+
   for (const cat of categories) {
     await prisma.category.upsert({
       where: { slug: cat.slug },
@@ -272,6 +289,88 @@ async function main() {
     },
   });
   console.log("Seeded coupons: WELCOME10, SAVE5");
+
+  // Blog categories and sample posts (skip if blog tables don't exist yet)
+  try {
+    const blogCatIds = ["blogcat-1", "blogcat-2", "blogcat-3", "blogcat-4", "blogcat-5"];
+    await prisma.blogCategory.upsert({
+      where: { id: blogCatIds[0] },
+      update: {},
+      create: { id: blogCatIds[0], name: "Tips & Tricks", slug: "tips-tricks" },
+    });
+    await prisma.blogCategory.upsert({
+      where: { id: blogCatIds[1] },
+      update: {},
+      create: { id: blogCatIds[1], name: "Equipment Reviews", slug: "equipment-reviews" },
+    });
+    await prisma.blogCategory.upsert({
+      where: { id: blogCatIds[2] },
+      update: {},
+      create: { id: blogCatIds[2], name: "Player Stories", slug: "player-stories" },
+    });
+    await prisma.blogCategory.upsert({
+      where: { id: blogCatIds[3] },
+      update: {},
+      create: { id: blogCatIds[3], name: "Training", slug: "training" },
+    });
+    await prisma.blogCategory.upsert({
+      where: { id: blogCatIds[4] },
+      update: {},
+      create: { id: blogCatIds[4], name: "Technique", slug: "technique" },
+    });
+    const samplePosts = [
+      {
+        slug: "master-the-art-of-topspin",
+        title: "Master the Art of Topspin: A Complete Guide",
+        excerpt: "Learn how to generate more spin on your loops and serves with proper technique and equipment choices.",
+        body: "Topspin is one of the most effective weapons in table tennis. This guide covers grip, stroke mechanics, and rubber selection.",
+        image: "/images/our-story.png",
+        authorName: "Coach Zhang",
+        categoryId: blogCatIds[4],
+        publishedAt: new Date("2026-07-08"),
+      },
+      {
+        slug: "how-to-choose-your-first-table-tennis-racket",
+        title: "How to Choose Your First Table Tennis Racket",
+        excerpt: "A beginner-friendly guide to selecting the right blade and rubbers for your playing style and budget.",
+        body: "Choosing your first racket can feel overwhelming. We break down blade speed, rubber thickness, and control vs. spin.",
+        image: "/images/about.png",
+        authorName: "Coach Zhang",
+        categoryId: blogCatIds[1],
+        publishedAt: new Date("2026-06-15"),
+      },
+      {
+        slug: "top-10-training-drills-for-club-players",
+        title: "Top 10 Training Drills for Club Players",
+        excerpt: "Effective drills you can do with a partner or robot to improve consistency, footwork, and match readiness.",
+        body: "From multi-ball to shadow play, these ten drills will help club players develop faster and play with more confidence.",
+        image: "/images/person-image.png",
+        authorName: "Coach Zhang",
+        categoryId: blogCatIds[3],
+        publishedAt: new Date("2026-06-01"),
+      },
+    ];
+    for (const p of samplePosts) {
+      await prisma.blogPost.upsert({
+        where: { slug: p.slug },
+        update: {},
+        create: {
+          ...p,
+          body: p.body,
+        },
+      });
+    }
+    console.log("Seeded blog categories and sample posts");
+  } catch (e: unknown) {
+    const err = e as { code?: string; meta?: { modelName?: string } };
+    if (err?.code === "P2021" && err?.meta?.modelName === "BlogCategory") {
+      console.log(
+        "Blog tables not found — run prisma/apply-blog-manually.sql in Supabase SQL Editor, then run 'npx prisma db seed' again to seed blog data."
+      );
+    } else {
+      throw e;
+    }
+  }
 }
 
 main()

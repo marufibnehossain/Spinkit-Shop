@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@/components/Button";
 
 type Category = {
@@ -18,6 +18,18 @@ export default function AdminCategoriesPage() {
   const [form, setForm] = useState({ name: "", slug: "", image: "", parentId: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageDragging, setImageDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  async function handleImageFile(file: File) {
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (data.url) setForm((prev) => ({ ...prev, image: data.url }));
+    } catch (_) {}
+  }
 
   useEffect(() => {
     loadCategories();
@@ -231,18 +243,43 @@ export default function AdminCategoriesPage() {
               </div>
               <div>
                 <label className="block font-sans text-sm font-medium text-text mb-1">
-                  Image URL
+                  Image
                 </label>
-                <input
-                  type="text"
-                  value={form.image}
-                  onChange={(e) => setForm({ ...form, image: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
-                  placeholder="/images/categories/rubbers.png"
-                />
-                <p className="mt-1 font-sans text-xs text-muted">
-                  Optional image path or URL to represent this category.
-                </p>
+                {form.image ? (
+                  <p className="mb-2 font-sans text-xs text-muted truncate" title={form.image}>
+                    Current: {form.image}
+                  </p>
+                ) : null}
+                <div
+                  className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-6 text-center cursor-pointer transition-colors ${
+                    imageDragging ? "border-sage-dark bg-sage-1/40" : "border-border bg-surface"
+                  }`}
+                  onDragOver={(e) => { e.preventDefault(); setImageDragging(true); }}
+                  onDragLeave={(e) => { e.preventDefault(); setImageDragging(false); }}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    setImageDragging(false);
+                    const f = e.dataTransfer.files?.[0];
+                    if (f) await handleImageFile(f);
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <p className="font-sans text-xs text-muted">
+                    Drag &amp; drop image here, or <span className="text-sage-dark underline">browse</span>
+                  </p>
+                  <p className="mt-1 font-sans text-[11px] text-muted">JPG, PNG, GIF, WEBP · Max 5 MB</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      if (f) await handleImageFile(f);
+                      if (e.target) e.target.value = "";
+                    }}
+                  />
+                </div>
               </div>
               <div className="flex gap-2 pt-2">
                 <Button type="submit" variant="primary" disabled={saving}>

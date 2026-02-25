@@ -1,20 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
-import SectionHeading from "@/components/SectionHeading";
-import Button from "@/components/Button";
-import Accordion from "@/components/Accordion";
-
-const FAQ_ITEMS = [
-  { title: "What is your return policy?", content: "We offer a 30-day return policy for unopened items. Please contact us to initiate a return." },
-  { title: "How long does shipping take?", content: "Orders typically ship within 2–3 business days. Delivery takes 5–7 business days within the US." },
-  { title: "Do you ship internationally?", content: "We currently ship to the US and Canada. International expansion is planned for the future." },
-];
 
 export default function ContactPage() {
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState("+44");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [notes, setNotes] = useState("");
 
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -25,17 +19,29 @@ export default function ContactPage() {
     setSending(true);
     setError("");
     try {
+      const composedMessage = [
+        notes.trim(),
+        `Phone: ${phoneCountry} ${phoneNumber}`.trim(),
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({
+          name: fullName,
+          email,
+          message: composedMessage,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setSent(true);
-        setName("");
+        setFullName("");
         setEmail("");
-        setMessage("");
+        setPhoneNumber("");
+        setNotes("");
       } else {
         setError(data.error ?? "Failed to send");
       }
@@ -46,68 +52,186 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg">
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
-        <SectionHeading
-          eyebrow="Get in touch"
-          title="Contact us"
-          subtitle="We’d love to hear from you. Send a message and we’ll respond within 1–2 business days."
-        />
-        <div className="mt-12 grid lg:grid-cols-2 gap-12 lg:gap-20">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block font-sans text-sm font-medium text-text mb-1">Name</label>
-              <input
-                id="name"
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-sage-2"
-              />
+    <div className="min-h-screen bg-[#F0F0F0]">
+      {/* Hero banner */}
+      <section className="relative overflow-hidden text-white">
+        <div className="relative h-[320px] md:h-[380px] flex items-center">
+          <Image
+            src="/images/page-banner.png"
+            alt="Contact Spinkit.Shop"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-sage-dark/50 mix-blend-multiply" aria-hidden />
+          <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-10 flex flex-col items-center justify-center text-center">
+            <h1 className="font-sans text-[40px] md:text-[64px] lg:text-[72px] font-black leading-none text-[#CFFF40]">
+              CONTACT US
+            </h1>
+            <p className="mt-4 max-w-xl font-sans text-sm md:text-base text-hero-text">
+              We&apos;d love to hear from you.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact content */}
+      <section className="bg-white py-10 md:py-14 lg:py-16">
+        <div className="max-w-[1315px] mx-auto px-4 md:px-6 lg:px-10 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8 lg:gap-10">
+          {/* Left: contact form card */}
+          <div className="bg-[#F5F0E8] border border-[#E2D9CC] px-5 py-6 md:px-8 md:py-8">
+            <div className="mb-6">
+              <h2 className="font-sans text-lg md:text-xl font-semibold text-[#111827]">
+                Contact Form
+              </h2>
+              <p className="mt-1 font-sans text-sm text-[#6B7280]">
+                It takes less than 1 minute. We&apos;ll contact you shortly.
+              </p>
             </div>
-            <div>
-              <label htmlFor="email" className="block font-sans text-sm font-medium text-text mb-1">Email</label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-sage-2"
-              />
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block font-sans text-sm font-medium text-[#111827] mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full border border-[#E2D9CC] bg-white px-4 py-3 font-sans text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#CFFF40]"
+                  placeholder="Name"
+                />
+              </div>
+
+              <div>
+                <label className="block font-sans text-sm font-medium text-[#111827] mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-[#E2D9CC] bg-white px-4 py-3 font-sans text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#CFFF40]"
+                  placeholder="user@gmail.com"
+                />
+              </div>
+
+              <div>
+                <label className="block font-sans text-sm font-medium text-[#111827] mb-1">
+                  Phone Number
+                </label>
+                <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,2.1fr)] gap-3">
+                  <select
+                    value={phoneCountry}
+                    onChange={(e) => setPhoneCountry(e.target.value)}
+                    className="border border-[#E2D9CC] bg-white px-3 py-3 font-sans text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#CFFF40]"
+                  >
+                    <option value="+44">+44</option>
+                    <option value="+1">+1</option>
+                    <option value="+49">+49</option>
+                    <option value="+33">+33</option>
+                  </select>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="border border-[#E2D9CC] bg-white px-4 py-3 font-sans text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#CFFF40]"
+                    placeholder="000 0000 000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-sans text-sm font-medium text-[#111827] mb-1">
+                  Special Notes
+                </label>
+                <textarea
+                  rows={4}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full border border-[#E2D9CC] bg-white px-4 py-3 font-sans text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#CFFF40] resize-none"
+                  placeholder="Write your message here"
+                />
+              </div>
+
+              {sent && (
+                <p className="font-sans text-sm text-[#15803d]">
+                  Thank you, your message has been sent.
+                </p>
+              )}
+              {error && (
+                <p className="font-sans text-sm text-red-600">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={sending}
+                className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-none bg-[#CFFF40] text-[#2A2B2A] px-6 py-3 font-sans text-sm font-semibold hover:opacity-90 disabled:opacity-60"
+              >
+                {sending ? "Sending…" : "Submit Now"}
+                <span aria-hidden>→</span>
+              </button>
+            </form>
+          </div>
+
+          {/* Right: address & hours cards */}
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="border border-[#E2D9CC] bg-white px-5 py-4">
+                <div className="mb-2 text-[#111827]" aria-hidden>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                  </svg>
+                </div>
+                <p className="font-sans text-xs text-[#6B7280] uppercase tracking-wide mb-1">
+                  Address
+                </p>
+                <p className="font-sans text-sm text-[#111827]">
+                  Abc, city, street, country.
+                </p>
+              </div>
+              <div className="border border-[#E2D9CC] bg-white px-5 py-4">
+                <div className="mb-2 text-[#111827]" aria-hidden>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                  </svg>
+                </div>
+                <p className="font-sans text-xs text-[#6B7280] uppercase tracking-wide mb-1">
+                  Email Address
+                </p>
+                <p className="font-sans text-sm text-[#111827]">
+                  hello@camperstore.com
+                </p>
+              </div>
             </div>
-            <div>
-              <label htmlFor="message" className="block font-sans text-sm font-medium text-text mb-1">Message</label>
-              <textarea
-                id="message"
-                rows={4}
-                required
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-sage-2 resize-none"
-              />
-            </div>
-            {sent && <p className="font-sans text-sm text-sage-dark">Message sent. We&apos;ll get back to you soon.</p>}
-            {error && <p className="font-sans text-sm text-red-600">{error}</p>}
-            <Button type="submit" variant="primary" disabled={sending}>
-              {sending ? "Sending…" : "Send message"}
-            </Button>
-          </form>
-          <div>
-            <h3 className="font-sans text-lg font-medium text-text mb-4">Other ways to reach us</h3>
-            <div className="font-sans text-muted space-y-2">
-              <p>Call: +1 (234) 567 890</p>
-              <p>Email: admin@spinkit-shop.com</p>
-              <p className="pt-4">Mon–Fri, 9am–5pm PT</p>
+
+            <div className="border border-[#E2D9CC] bg-white px-5 py-4">
+              <p className="font-sans text-xs text-[#6B7280] uppercase tracking-wide mb-2">
+                Business Hours
+              </p>
+              <div className="grid grid-cols-3 gap-4 font-sans text-xs md:text-sm text-[#111827]">
+                <div>
+                  <p className="font-medium">Monday - Friday</p>
+                  <p className="text-[#6B7280]">09.00 am - 08.00 pm</p>
+                </div>
+                <div>
+                  <p className="font-medium">Saturday</p>
+                  <p className="text-[#6B7280]">09.00 am - 06.00 pm</p>
+                </div>
+                <div>
+                  <p className="font-medium">Sunday</p>
+                  <p className="text-[#6B7280]">09.00 am - 05.00 pm</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <section className="mt-16 pt-12 border-t border-border">
-          <h2 className="font-sans text-xl font-medium text-text mb-6">FAQ</h2>
-          <Accordion items={FAQ_ITEMS} />
-        </section>
-      </div>
+      </section>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartToast from "@/components/CartToast";
 import BreadcrumbBar from "@/components/BreadcrumbBar";
+import { BreadcrumbLabelProvider } from "@/components/BreadcrumbContext";
 
 export default function StoreShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/";
@@ -14,7 +15,7 @@ export default function StoreShell({ children }: { children: React.ReactNode }) 
     return <>{children}</>;
   }
 
-  const marketingRoutes = ["/", "/about", "/faq", "/contact"];
+  const marketingRoutes = ["/", "/about", "/blog", "/faq", "/contact"];
   const isMarketing = marketingRoutes.includes(pathname);
 
   const isEcommerce =
@@ -23,15 +24,18 @@ export default function StoreShell({ children }: { children: React.ReactNode }) 
     pathname.startsWith("/cart") ||
     pathname.startsWith("/checkout");
 
+  const showBreadcrumb =
+    isEcommerce || pathname.startsWith("/blog/");
+
   const headerVariant = isMarketing ? "transparent" : "solid";
 
   return (
-    <>
+    <BreadcrumbLabelProvider>
       <Header variant={headerVariant} />
-      {isEcommerce && <BreadcrumbBar />}
+      {showBreadcrumb && <BreadcrumbBar />}
       <main className={`flex-1 ${isEcommerce ? "bg-[#F7F7F7]" : ""}`}>{children}</main>
       <Footer />
       <CartToast />
-    </>
+    </BreadcrumbLabelProvider>
   );
 }

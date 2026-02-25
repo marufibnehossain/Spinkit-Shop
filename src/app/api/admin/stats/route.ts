@@ -9,51 +9,63 @@ export async function GET() {
   }
   try {
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().slice(0, 19).replace("T", " ");
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-    const startOfWeekStr = startOfWeek.toISOString().slice(0, 19).replace("T", " ");
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setDate(startOfToday.getDate() - startOfToday.getDay());
+    const sevenDaysAgo = new Date(startOfToday);
+    sevenDaysAgo.setDate(startOfToday.getDate() - 6);
 
-    const [totalRows, pendingRows, todayRows, weekRows, revenueTodayRows, revenueWeekRows, lowStockRows, revenueByDayRows] = await Promise.all([
-      prisma.$queryRawUnsafe<Array<{ n: number }>>('SELECT COUNT(*) as n FROM "Order"'),
-      prisma.$queryRawUnsafe<Array<{ n: number }>>('SELECT COUNT(*) as n FROM "Order" WHERE status = ?', "PENDING"),
-      prisma.$queryRawUnsafe<Array<{ n: number }>>('SELECT COUNT(*) as n FROM "Order" WHERE createdAt >= ?', startOfToday),
-      prisma.$queryRawUnsafe<Array<{ n: number }>>('SELECT COUNT(*) as n FROM "Order" WHERE createdAt >= ?', startOfWeekStr),
-      prisma.$queryRawUnsafe<Array<{ sum: number | null }>>(
-        'SELECT COALESCE(SUM(totalCents), 0) as sum FROM "Order" WHERE createdAt >= ? AND status != ?',
-        startOfToday,
-        "CANCELLED"
-      ),
-      prisma.$queryRawUnsafe<Array<{ sum: number | null }>>(
-        'SELECT COALESCE(SUM(totalCents), 0) as sum FROM "Order" WHERE createdAt >= ? AND status != ?',
-        startOfWeekStr,
-        "CANCELLED"
-      ),
-      prisma.$queryRawUnsafe<Array<{ id: string; name: string; stock: number }>>(
-        "SELECT id, name, stock FROM Product WHERE trackInventory = 1 AND stock > 0 AND stock <= 5 ORDER BY stock ASC LIMIT 10"
-      ),
-      prisma.$queryRawUnsafe<Array<{ date: string; orders: number; revenue: number }>>(
-        `SELECT date(createdAt) as date, COUNT(*) as orders, COALESCE(SUM(CASE WHEN status != 'CANCELLED' THEN totalCents ELSE 0 END), 0) as revenue
-         FROM "Order" WHERE createdAt >= datetime('now', '-7 days') GROUP BY date(createdAt) ORDER BY date ASC`
-      ),
-    ]);
+    const [totalOrders, pendingOrders, ordersToday, ordersThisWeek, revenueTodayAgg, revenueWeekAgg, lowStockProducts, recentOrders] =
+      await Promise.all([
+        prisma.order.count(),
+        prisma.order.count({ where: { status: "PENDING" } }),
+        prisma.order.count({ where: { createdAt: { gte: startOfToday } } }),
+        prisma.order.count({ where: { createdAt: { gte: startOfWeek } } }),
+        prisma.order.aggregate({
+          _sum: { totalCents: true },
+          where: {
+            createdAt: { gte: startOfToday },
+            status: { not: "CANCELLED" },
+          },
+        }),
+        prisma.order.aggregate({
+          _sum: { totalCents: true },
+          where: {
+            createdAt: { gte: startOfWeek },
+            status: { not: "CANCELLED" },
+          },
+        }),
+        prisma.product.findMany({
+          where: {
+            trackInventory: true,
+            stock: { gt: 0, lte: 5 },
+          },
+          orderBy: { stock: "asc" },
+          take: 10,
+          select: { id: true, name: true, stock: true },
+        }),
+        prisma.order.findMany({
+          where: { createdAt: { gte: sevenDaysAgo } },
+          select: { createdAt: true, totalCents: true, status: true },
+        }),
+      ]);
 
-    const totalOrders = Number((totalRows[0] as { n: number })?.n ?? 0);
-    const pendingOrders = Number((pendingRows[0] as { n: number })?.n ?? 0);
-    const ordersToday = Number((todayRows[0] as { n: number })?.n ?? 0);
-    const ordersThisWeek = Number((weekRows[0] as { n: number })?.n ?? 0);
-    const revenueTodayCents = Number((revenueTodayRows[0] as { sum: number | null })?.sum ?? 0);
-    const revenueThisWeekCents = Number((revenueWeekRows[0] as { sum: number | null })?.sum ?? 0);
-    const lowStockProducts = (lowStockRows as Array<{ id: string; name: string; stock: number }>).map((r) => ({
-      id: r.id,
-      name: r.name,
-      stock: r.stock,
-    }));
-    const revenueByDay = (revenueByDayRows as Array<{ date: string; orders: number; revenue: number }>).map((r) => ({
-      date: r.date,
-      orders: Number(r.orders),
-      revenue: Number(r.revenue),
-    }));
+    const revenueTodayCents = revenueTodayAgg._sum.totalCents ?? 0;
+    const revenueThisWeekCents = revenueWeekAgg._sum.totalCents ?? 0;
+
+    const revenueMap = new Map<string, { orders: number; revenue: number }>();
+    for (const order of recentOrders) {
+      const key = order.createdAt.toISOString().slice(0, 10);
+      const entry = revenueMap.get(key) ?? { orders: 0, revenue: 0 };
+      entry.orders += 1;
+      if (order.status !== "CANCELLED") {
+        entry.revenue += order.totalCents;
+      }
+      revenueMap.set(key, entry);
+    }
+    const revenueByDay = Array.from(revenueMap.entries())
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      .map(([date, { orders, revenue }]) => ({ date, orders, revenue }));
 
     return NextResponse.json({
       totalOrders,
