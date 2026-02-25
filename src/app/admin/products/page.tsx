@@ -379,8 +379,19 @@ export default function AdminProductsPage() {
                         type="checkbox"
                         checked={selectedIds.has(p.id)}
                         onChange={(e) => {
-                          if (e.target.checked) setSelectedIds((s) => new Set([...s, p.id]));
-                          else setSelectedIds((s) => { const n = new Set(s); n.delete(p.id); return n; });
+                          if (e.target.checked) {
+                            setSelectedIds((s) => {
+                              const next = new Set(s);
+                              next.add(p.id);
+                              return next;
+                            });
+                          } else {
+                            setSelectedIds((s) => {
+                              const next = new Set(s);
+                              next.delete(p.id);
+                              return next;
+                            });
+                          }
                         }}
                         className="rounded border-border"
                         aria-label={`Select ${p.name}`}
