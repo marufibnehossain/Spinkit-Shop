@@ -17,14 +17,19 @@ export async function GET() {
     const items = await prisma.wishlistItem.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
-      include: {
-        product: { select: { slug: true } },
-      },
     });
+    const productIds = items.map((w) => w.productId);
+    const products = productIds.length
+      ? await prisma.product.findMany({
+          where: { id: { in: productIds } },
+          select: { id: true, slug: true },
+        })
+      : [];
+    const slugById = new Map(products.map((p) => [p.id, p.slug]));
     return NextResponse.json(
       items.map((w) => ({
         productId: w.productId,
-        slug: w.product.slug,
+        slug: slugById.get(w.productId) ?? "",
       }))
     );
   } catch (e) {
