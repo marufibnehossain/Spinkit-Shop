@@ -11,14 +11,22 @@ export async function GET() {
   try {
     const user = await prisma.user.findUnique({
       where: { email: session.user.email.toLowerCase() },
-      select: { id: string },
+      select: { id: true },
     });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-    const rows = await prisma.$queryRawUnsafe<Array<{ productId: string; slug: string }>>(
-      "SELECT w.productId, p.slug FROM WishlistItem w INNER JOIN Product p ON w.productId = p.id WHERE w.userId = ? ORDER BY w.createdAt DESC",
-      user.id
+    const items = await prisma.wishlistItem.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        product: { select: { slug: true } },
+      },
+    });
+    return NextResponse.json(
+      items.map((w) => ({
+        productId: w.productId,
+        slug: w.product.slug,
+      }))
     );
-    return NextResponse.json(rows);
   } catch (e) {
     console.error("[Account] Wishlist get error:", e);
     return NextResponse.json({ error: "Failed to fetch wishlist" }, { status: 500 });
@@ -36,16 +44,14 @@ export async function POST(req: Request) {
     if (!productId) return NextResponse.json({ error: "productId required" }, { status: 400 });
     const user = await prisma.user.findUnique({
       where: { email: session.user.email.toLowerCase() },
-      select: { id: string },
+      select: { id: true },
     });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-    const id = `wish-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    await prisma.$executeRawUnsafe(
-      "INSERT OR IGNORE INTO WishlistItem (id, userId, productId, createdAt) VALUES (?, ?, ?, datetime('now'))",
-      id,
-      user.id,
-      productId
-    );
+    await prisma.wishlistItem.upsert({
+      where: { userId_productId: { userId: user.id, productId } },
+      update: {},
+      create: { userId: user.id, productId },
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[Account] Wishlist add error:", e);
@@ -64,14 +70,12 @@ export async function DELETE(req: Request) {
     if (!productId) return NextResponse.json({ error: "productId required" }, { status: 400 });
     const user = await prisma.user.findUnique({
       where: { email: session.user.email.toLowerCase() },
-      select: { id: string },
+      select: { id: true },
     });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-    await prisma.$executeRawUnsafe(
-      "DELETE FROM WishlistItem WHERE userId = ? AND productId = ?",
-      user.id,
-      productId
-    );
+    await prisma.wishlistItem.deleteMany({
+      where: { userId: user.id, productId },
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[Account] Wishlist remove error:", e);
