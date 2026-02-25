@@ -2,16 +2,23 @@
 
 export const dynamic = "force-dynamic";
 
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/Button";
 import SectionHeading from "@/components/SectionHeading";
 
 export default function VerifyEmailPage() {
-  const searchParams = useSearchParams();
-  const success = searchParams.get("success");
-  const error = searchParams.get("error");
-  const sent = searchParams.get("sent");
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    setSuccess(sp.get("success"));
+    setError(sp.get("error"));
+    setSent(sp.get("sent"));
+  }, []);
 
   if (success === "1") {
     return (
