@@ -7,7 +7,7 @@ export default function FooterNewsletter() {
   return (
     <div className="relative min-h-[260px] bg-black text-white overflow-hidden">
       <Image
-        src="/images/group 11.png"
+        src="/images/group-11.png"
         alt="Subscribe to our newsletter"
         fill
         className="object-cover opacity-70"
