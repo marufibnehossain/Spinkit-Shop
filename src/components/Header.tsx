@@ -170,7 +170,7 @@ export default function Header({ variant = "solid" }: HeaderProps) {
             {/* Cart */}
             <Link
               href="/cart"
-              className={`p-1.5 pr-6 relative inline-flex ${textColor} ${iconHover}`}
+              className={`p-1.5 pr-0 relative inline-flex ${textColor} ${iconHover}`}
               aria-label="Cart"
             >
               <svg

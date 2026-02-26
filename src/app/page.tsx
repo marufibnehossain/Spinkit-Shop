@@ -74,7 +74,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <div className="flex items-center justify-between gap-4 mb-8 md:mb-10">
             <h2
               id="new-arrivals-heading"
-              className="font-display text-2xl md:text-3xl font-bold uppercase text-[#2050FC]"
+              className="font-display text-[24px] font-bold italic uppercase text-[#7546FF]"
             >
               New Arrivals
             </h2>

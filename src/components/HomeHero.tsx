@@ -19,16 +19,18 @@ export default function HomeHero() {
 
           <div className="mt-10 flex flex-col md:flex-row md:items-end md:justify-between gap-8 w-full">
             {/* Left: social proof + CTA */}
-            <div className="max-w-md space-y-4">
+            <div className="w-[440px] max-w-full space-y-4">
               <div className="flex items-end gap-3">
                 <div className="flex -space-x-2">
-                  <img src="/images/person-image.png" alt="person-image" className="w-[126px]" />
+                  <img src="/images/person-image.png" alt="person-image" className="w-[180px]" />
                 </div>
-                <div>
-                  <p className="font-sans text-sm text-white font-semibold">
-                    12.5k+{" "}
-                    <span className="font-normal text-white/80">Satisfied users.</span>
-                  </p>
+                <div className="flex flex-col">
+                  <span className="font-sans text-[24px] text-white font-semibold leading-none">
+                    12.5k+
+                  </span>
+                  <span className="font-sans text-sm font-normal text-white/80">
+                    Satisfied users.
+                  </span>
                 </div>
               </div>
 
@@ -48,14 +50,12 @@ export default function HomeHero() {
 
             {/* Right: rating */}
             <div className="md:text-right">
-              <p className="font-sans text-sm text-white/80">
-                <span className="font-semibold text-white">4.7/5</span>{" "}
-                <span className="ml-1 text-[#CFFF40]" aria-hidden>
-                  ★★★★★
-                </span>
+              <p className="flex items-start font-sans text-sm text-white/80">
+                <span className="font-sans text-[24px] font-semibold text-white">4.7/5</span>
+                <img src="/images/banner-star.png" alt="" className="ml-1 w-[80px] h-auto shrink-0" width={80} height={20} aria-hidden />
               </p>
-              <p className="font-sans text-xs text-white/70 mt-1">
-                20+ reviews on Trustpilot
+              <p className="font-lato text-[16px] text-[#FFFFFF] mt-1">
+                20+ reviews on <span className="font-bold italic">Trustpilot</span>
               </p>
             </div>
           </div>
