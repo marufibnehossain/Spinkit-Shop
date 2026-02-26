@@ -7,7 +7,7 @@ import ProductsClient from "./ProductsClient";
 import SidebarFilters from "./SidebarFilters";
 
 interface ProductsPageProps {
-  searchParams?: { category?: string; sort?: string };
+  searchParams?: { category?: string; sort?: string; minPrice?: string; maxPrice?: string };
 }
 
 function sortProducts(items: Product[], sort?: string) {
@@ -32,11 +32,27 @@ function sortProducts(items: Product[], sort?: string) {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const categorySlug = searchParams?.category ?? null;
   const allProducts = await getProducts();
-  const filtered =
+  const baseFiltered =
     categorySlug && categorySlug !== "all"
       ? allProducts.filter((p) => p.category === categorySlug)
       : allProducts;
-  const sorted = sortProducts(filtered, searchParams?.sort);
+
+  const allPrices = allProducts.map((p) => p.price);
+  const baseMinPrice = allPrices.length ? Math.min(...allPrices) : 0;
+  const baseMaxPrice = allPrices.length ? Math.max(...allPrices) : 0;
+
+  const minPriceParam = searchParams?.minPrice ? Number(searchParams.minPrice) : NaN;
+  const maxPriceParam = searchParams?.maxPrice ? Number(searchParams.maxPrice) : NaN;
+
+  const effectiveMin = !Number.isNaN(minPriceParam) ? Math.max(baseMinPrice, minPriceParam) : baseMinPrice;
+  const effectiveMax = !Number.isNaN(maxPriceParam) ? Math.min(baseMaxPrice, maxPriceParam) : baseMaxPrice;
+
+  const priceFiltered =
+    allPrices.length === 0
+      ? baseFiltered
+      : baseFiltered.filter((p) => p.price >= effectiveMin && p.price <= effectiveMax);
+
+  const sorted = sortProducts(priceFiltered, searchParams?.sort);
   const total = sorted.length;
   const visibleCount = Math.min(total, 12);
 
@@ -49,7 +65,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <h1 className="font-display text-xl md:text-2xl font-medium text-text mb-6">
               Shop All
             </h1>
-            <SidebarFilters categories={categories} />
+            <SidebarFilters
+              categories={categories}
+              priceRange={{ min: baseMinPrice, max: baseMaxPrice }}
+            />
           </div>
           <div>
             {/* Results bar + sort — above the product grid */}

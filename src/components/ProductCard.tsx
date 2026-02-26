@@ -97,7 +97,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
             />
           </div>
           {/* Lime footer: name, price, bag icon */}
-          <div className="flex items-center justify-between gap-3 bg-[#CFFF40] px-4 py-3 rounded-none">
+          <div className="flex items-center justify-between gap-3 bg-[#D6FC45] p-3 rounded-none">
             <div className="min-w-0 flex-1">
               <h3 className="font-sans text-sm font-normal text-text truncate">
                 {product.name}

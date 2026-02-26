@@ -1,28 +1,38 @@
 import Image from "next/image";
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
-const insights = [
-  {
-    title: "Top 5 Rubbers for Maximum Spin in 2026",
-    date: "July 8, 2026",
-    image: "/images/our-story.png",
-    href: "/blog/top-5-rubbers-spin-2026",
-  },
-  {
-    title: "How to Choose the Right Table Tennis Blade",
-    date: "Sept 12, 2026",
-    image: "/images/about.png",
-    href: "/blog/choose-right-blade",
-  },
-  {
-    title: "Beginner vs. Pro Equipment: What's the Real Difference?",
-    date: "Dec 24 2026",
-    image: "/images/person-image.png",
-    href: "/blog/beginner-vs-pro-equipment",
-  },
-];
+export default async function InsightsSection() {
+  let posts:
+    | Array<{
+        slug: string;
+        title: string;
+        image: string | null;
+        publishedAt: Date | null;
+      }>
+    = [];
 
-export default function InsightsSection() {
+  try {
+    // Guard for environments where blog models might not exist yet
+    if (typeof (prisma as { blogPost?: { findMany?: unknown } }).blogPost?.findMany === "function") {
+      posts = await prisma.blogPost.findMany({
+        where: { publishedAt: { not: null } },
+        orderBy: { publishedAt: "desc" },
+        take: 3,
+        select: {
+          slug: true,
+          title: true,
+          image: true,
+          publishedAt: true,
+        },
+      });
+    }
+  } catch (e) {
+    console.error("[InsightsSection] Failed to load blog posts", e);
+  }
+
+  const hasPosts = posts.length > 0;
+
   return (
     <section
       className="py-[50px] bg-bg"
@@ -31,36 +41,59 @@ export default function InsightsSection() {
       <div className="mx-auto max-w-[1312px] px-4 md:px-6">
         <h2
           id="insights-heading"
-          className="font-display text-2xl md:text-3xl font-bold text-center mb-10 md:mb-12"
+          className="font-display text-[24px] font-bold italic text-center text-[#7546FF] mb-10 md:mb-12"
         >
-          Table Tennis{" "}
-          <span className="text-[#2050FC]">Insights</span>
+          Table Tennis Insights
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {insights.map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              className="group block rounded-none overflow-hidden hover:opacity-95 transition-opacity"
-            >
-              <div className="relative aspect-square w-full overflow-hidden bg-sage-1 rounded-none">
-                <Image
-                  src={item.image}
-                  alt=""
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-              </div>
-              <h3 className="mt-4 font-sans font-bold text-text text-base leading-tight group-hover:underline">
-                {item.title}
-              </h3>
-              <p className="mt-2 font-sans text-sm text-muted">
-                {item.date}
-              </p>
-            </Link>
-          ))}
-        </div>
+        {hasPosts ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {posts.map((post) => {
+              const dateLabel =
+                post.publishedAt &&
+                post.publishedAt.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                });
+
+            return (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group block rounded-none overflow-hidden hover:opacity-95 transition-opacity"
+              >
+                <div className="relative aspect-square w-full overflow-hidden bg-sage-1 rounded-none">
+                  {post.image ? (
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#e5e5e5] text-[#9ca3af]">
+                      <span className="font-sans text-xs">No image</span>
+                    </div>
+                  )}
+                </div>
+                <h3 className="mt-4 font-sans font-bold text-text text-base leading-tight group-hover:underline">
+                  {post.title}
+                </h3>
+                {dateLabel && (
+                  <p className="mt-2 font-sans text-sm text-muted">
+                    {dateLabel}
+                  </p>
+                )}
+              </Link>
+            );
+            })}
+          </div>
+        ) : (
+          <p className="font-sans text-sm text-muted text-center">
+            No articles yet. Check back soon.
+          </p>
+        )}
       </div>
     </section>
   );

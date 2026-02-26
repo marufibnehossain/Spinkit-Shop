@@ -66,7 +66,7 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
         variant="primary"
         arrow={false}
         disabled={outOfStock}
-        className="h-11 flex-1 min-w-0 bg-[#CFFF40] border border-[#CFFF40] text-sm md:text-base font-medium hover:bg-[#D8FF70]"
+        className="h-11 flex-1 min-w-0 !bg-[#D0F198] border border-[#D0F198] text-sm md:text-base font-medium hover:bg-[#D8FF70]"
       >
         {outOfStock
           ? "Out of stock"

@@ -37,11 +37,11 @@ export default function HomeFAQSection() {
       aria-labelledby="home-faq-heading"
     >
       <div className="mx-auto max-w-[1312px] px-4 md:px-6">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: heading stacked over 3 lines */}
           <h2
             id="home-faq-heading"
-            className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-[#2D2D2D] leading-tight max-w-sm"
+            className="font-display text-[32px] md:text-[40px] lg:text-[48px] font-bold italic text-[#2D2D2D] leading-tight max-w-sm"
           >
             Frequently Asked Questions
           </h2>

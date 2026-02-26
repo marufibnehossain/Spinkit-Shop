@@ -44,7 +44,7 @@ export default function FeaturedProductsBanner({ products }: FeaturedProductsBan
           {product1 && (
             <Link
               href={`/product/${product1.slug}`}
-              className="flex items-center gap-4 bg-[#CFFF40] p-4 rounded-none w-full sm:w-[280px] shrink-0 hover:opacity-95 transition-opacity"
+              className="flex items-end gap-4 bg-[#CFFF40] p-3 rounded-none w-full sm:w-[280px] shrink-0 hover:opacity-95 transition-opacity"
             >
               <div className="relative w-20 h-20 shrink-0 bg-white/60 overflow-hidden rounded-none">
                 <Image
@@ -69,7 +69,7 @@ export default function FeaturedProductsBanner({ products }: FeaturedProductsBan
           {product2 && (
             <Link
               href={`/product/${product2.slug}`}
-              className="flex items-center gap-4 bg-[#CFFF40] p-4 rounded-none w-full sm:w-[280px] shrink-0 hover:opacity-95 transition-opacity"
+              className="flex items-end gap-4 bg-[#CFFF40] p-3 rounded-none w-full sm:w-[280px] shrink-0 hover:opacity-95 transition-opacity"
             >
               <div className="relative w-20 h-20 shrink-0 bg-white/60 overflow-hidden rounded-none">
                 <Image

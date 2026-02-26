@@ -1,23 +1,21 @@
 import Link from "next/link";
+import Image from "next/image";
 import AdminFooterLink from "@/components/AdminFooterLink";
 import FooterNewsletter from "@/components/FooterNewsletter";
 
 const supportLinks = [
-  { href: "/about", label: "Who we are" },
-  { href: "/contact", label: "Customer service" },
-  { href: "/products", label: "Discounts" },
-  { href: "/payment", label: "Payment" },
-  { href: "/shipping", label: "Transport" },
-  { href: "/privacy", label: "Privacy" },
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/products", label: "Shop" },
+  { href: "/blog", label: "Blog" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const companyLinks = [
-  { href: "/stores", label: "Our stores" },
-  { href: "/assembly", label: "Racket assembly service" },
   { href: "/faq", label: "FAQ" },
-  { href: "/refund-policy", label: "Refund" },
-  { href: "/terms", label: "General conditions" },
-  { href: "/cookies", label: "Cookies" },
+  { href: "/terms", label: "Terms & Conditions" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/refund-policy", label: "Refund & Returns Policy" },
 ];
 
 const socialLinks = [
@@ -48,16 +46,15 @@ export default function Footer() {
                 Spinkit.Shop
               </Link>
               <div className="mt-4 font-sans text-sm text-white space-y-1">
-                <p>Mon - Fri:</p>
-                <p>7:00 AM - 3:30 PM</p>
+                <p>Address: Company Address, City name</p>
                 <p>Phone: +421 905 557</p>
-                <p>Gmail : spinkit.shop@gmail.com</p>
+                <p>Email: spinkit.shop@gmail.com</p>
               </div>
             </div>
-            {/* Column 2: Support */}
+            {/* Column 2: Quick links */}
             <div>
               <h4 className="font-sans text-sm font-semibold text-white/70 mb-3">
-                Support
+                Quick links
               </h4>
               <ul className="space-y-2">
                 {supportLinks.map((link) => (
@@ -122,13 +119,13 @@ export default function Footer() {
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6" aria-label="Payment methods">
-              <span className="[&_a]:text-white/80 [&_a]:hover:text-white">
-                <AdminFooterLink />
-              </span>
-              <span className="font-sans text-xs text-white/70">Mastercard</span>
-              <span className="font-sans text-xs text-white/70">VISA</span>
-              <span className="font-sans text-xs text-white/70">G Pay</span>
-              <span className="font-sans text-xs text-white/70">Apple Pay</span>
+              <Image
+                src="/images/payments.svg"
+                alt="Accepted payment methods"
+                width={200}
+                height={24}
+                className="h-6 w-auto"
+              />
             </div>
           </div>
         </div>

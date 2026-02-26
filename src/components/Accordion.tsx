@@ -11,11 +11,11 @@ interface AccordionItemProps {
 function AccordionItem({ title, children, defaultOpen = false }: AccordionItemProps) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b border-[#2D2D2D]/25 last:border-b-0 px-4">
+    <div className="border-b border-[#2D2D2D]/25 first:border-t">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between py-4 font-sans text-left text-text hover:text-muted transition-colors focus:outline-none rounded"
+        className="w-full flex items-center justify-between py-4 font-sans text-left text-text font-medium md:text-xl text-base transition-colors focus:outline-none rounded"
         aria-expanded={open}
       >
         {title}
@@ -25,7 +25,7 @@ function AccordionItem({ title, children, defaultOpen = false }: AccordionItemPr
         className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="pb-4 font-sans text-sm text-muted leading-relaxed">
+          <div className="pb-4 font-sans text-base leading-relaxed">
             {children}
           </div>
         </div>
@@ -46,7 +46,7 @@ export default function Accordion({
   className = "",
 }: AccordionProps) {
   return (
-    <div className={`border border-[#2D2D2D]/25 rounded-lg bg-surface overflow-hidden ${className}`}>
+    <div className={`rounded-none bg-transparent overflow-hidden box-content ${className}`}>
       {items.map((item, i) => (
         <AccordionItem
           key={item.title}

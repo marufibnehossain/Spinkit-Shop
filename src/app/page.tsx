@@ -10,7 +10,7 @@ import {
 import ProductCard from "@/components/ProductCard";
 import HomeHero from "@/components/HomeHero";
 import DiscoverCategoriesSection from "@/components/DiscoverCategoriesSection";
-import PassionQualitySection from "@/components/PassionQualitySection";
+import InspiredBySection from "@/components/InspiredBySection";
 import BestSellersCarousel from "@/components/BestSellersCarousel";
 import ServicesSection from "@/components/ServicesSection";
 import PerformanceEditSection from "@/components/PerformanceEditSection";
@@ -93,8 +93,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
       </section>
 
-      {/* 4. Passion for Table Tennis / Commitment to Quality — image + copy */}
-      <PassionQualitySection />
+      {/* 4. Inspired by passion, defined by quality — polaroids + copy */}
+      <InspiredBySection />
 
       {/* 5. Best Sellers — carousel, at least 8 products */}
       <section className="py-[50px]" aria-labelledby="best-sellers-heading">
@@ -102,7 +102,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <div className="flex items-center justify-between gap-4 mb-8 md:mb-10">
             <h2
               id="best-sellers-heading"
-              className="font-display text-2xl md:text-3xl font-bold text-[#2050FC]"
+              className="font-display text-[24px] font-bold italic text-[#7546FF]"
             >
               Best Sellers
             </h2>
@@ -117,13 +117,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
       </section>
 
-      {/* 6. Services — Fast returns, Quality, Delivery, Secure payments */}
+      {/* 7. Services — Fast returns, Quality, Delivery, Secure payments */}
       <ServicesSection />
 
-      {/* 7. The Performance Edit — purple bg, two images, lime CTA */}
+      {/* 8. The Performance Edit — purple bg, two images, lime CTA */}
       <PerformanceEditSection />
 
-      {/* 8. Featured products banner — bg image + two lime product cards */}
+      {/* 9. Featured products banner — bg image + two lime product cards */}
       <FeaturedProductsBanner
         products={
           featured.length >= 2
@@ -132,10 +132,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         }
       />
 
-      {/* 9. Table Tennis Insights — blog/article cards */}
+      {/* 10. Table Tennis Insights — blog/article cards */}
       <InsightsSection />
 
-      {/* 10. Frequently Asked Questions — lime bg, accordion */}
+      {/* 11. Frequently Asked Questions — lime bg, accordion */}
       <HomeFAQSection />
     </>
   );

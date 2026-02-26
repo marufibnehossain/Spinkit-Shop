@@ -87,24 +87,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
       />
 
       {/* Main product section on warm beige background */}
-      <section className="border-b border-border bg-bg">
+      <section className="bg-[#F7F7F7]">
         <div className="mx-auto max-w-[1315px] px-4 md:px-6 py-8 md:py-12">
           <RecordRecentlyViewed slug={product.slug} />
           <div className="mt-6">
             <ProductWithVariations product={product} />
           </div>
+        </div>
+      </section>
 
-          {/* You may also like – sits directly under the main product area */}
-          {related.length > 0 && (
-            <div className="mt-16 pt-10 border-t border-border">
+      {/* You may also like — full-width band with boxed content */}
+      {related.length > 0 && (
+        <section className="bg-[#E9E6E3]">
+          <div className="mx-auto max-w-[1315px] px-4 md:px-6 py-10 md:py-14">
+            <div className="px-4 md:px-6 py-6 md:py-8">
               <h2 className="font-sans text-xl md:text-2xl font-bold text-text mb-6 md:mb-8">
                 YOU MAY ALSO LIKE
               </h2>
               <RelatedProductsCarousel products={related.slice(0, 8)} />
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Bottom image banner, full-width and flush with footer */}
       <section className="w-full overflow-hidden rounded-none">
