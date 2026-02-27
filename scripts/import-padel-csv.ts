@@ -163,7 +163,7 @@ async function main() {
           priceCents,
           images: JSON.stringify(imageArray),
           categoryId: padel.id,
-          tags: JSON.stringify([...new Set(tags)]),
+          tags: JSON.stringify(Array.from(new Set(tags))),
           shortDesc,
           longDesc,
           stock: 0,
