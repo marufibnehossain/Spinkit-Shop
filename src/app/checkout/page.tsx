@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart-store";
 import { useCurrencyStore } from "@/lib/currency-store";
+import { EUROPEAN_COUNTRIES, getStatesForCountry } from "@/lib/european-countries";
 
 type PaymentMethod = "card" | "cod";
 
@@ -22,9 +23,9 @@ interface Address {
 
 const labelClass = "block mb-1.5 font-sans text-sm font-medium text-[#2A2B2A]";
 const inputClass =
-  "w-full rounded border-[0.5px] border-[rgba(42,43,42,0.6)] bg-transparent px-3 py-2.5 font-sans text-sm text-[#2A2B2A] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#D0F198]/50 focus:border-[rgba(42,43,42,0.6)]";
+  "w-full min-w-0 max-w-full rounded border-[0.5px] border-[rgba(42,43,42,0.6)] bg-transparent px-3 py-2.5 font-sans text-sm text-[#2A2B2A] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#D0F198]/50 focus:border-[rgba(42,43,42,0.6)]";
 
-const cardClass = "rounded-lg border-[0.5px] border-[rgba(42,43,42,0.6)] p-6 md:p-8";
+const cardClass = "rounded-lg border-[0.5px] border-[rgba(42,43,42,0.6)] p-4 sm:p-6 md:p-8";
 
 const CHECKOUT_SAVED_KEY = "spinkit-checkout-saved";
 
@@ -38,7 +39,7 @@ type CheckoutSaved = {
   city?: string;
   zip?: string;
   country?: string;
-  district?: string;
+  state?: string;
   rememberPhoneCode?: string;
   rememberPhoneNumber?: string;
 };
@@ -92,7 +93,7 @@ export default function CheckoutPage() {
       if (saved.city) setCity(saved.city);
       if (saved.zip) setZip(saved.zip);
       if (saved.country) setCountry(saved.country);
-      if (saved.district) setDistrict(saved.district);
+      if (saved.state) setState(saved.state);
       if (saved.rememberPhoneCode) setRememberPhoneCode(saved.rememberPhoneCode);
       if (saved.rememberPhoneNumber) setRememberPhoneNumber(saved.rememberPhoneNumber ?? "");
     }
@@ -114,7 +115,7 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
   const [country, setCountry] = useState("");
-  const [district, setDistrict] = useState("");
+  const [state, setState] = useState("");
   const [rememberPhoneCode, setRememberPhoneCode] = useState("+44");
   const [rememberPhoneNumber, setRememberPhoneNumber] = useState("");
 
@@ -255,7 +256,7 @@ export default function CheckoutPage() {
         city,
         zip,
         country,
-        district,
+        state,
         rememberPhoneCode,
         rememberPhoneNumber,
       });
@@ -269,17 +270,16 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F0F0]">
-
-      <div className="max-w-[1315px] mx-auto px-4 md:px-6 py-8 md:py-12">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-10">
-          <form id="checkout-form" onSubmit={handleSubmit} className="lg:col-span-7 space-y-6">
+    <div className="min-h-screen bg-[#F0F0F0] overflow-x-hidden">
+      <div className="max-w-[1315px] mx-auto px-4 md:px-6 py-8 md:py-12 w-full min-w-0">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 min-w-0">
+          <form id="checkout-form" onSubmit={handleSubmit} className="lg:col-span-7 space-y-6 min-w-0 overflow-hidden">
             {/* Billing Address card */}
             <section className={cardClass}>
               <h2 className="font-sans text-lg font-bold text-[#2A2B2A] mb-4">
                 Billing Address
               </h2>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="billing-first-name" className={labelClass}>First Name</label>
                   <input
@@ -305,7 +305,7 @@ export default function CheckoutPage() {
                   />
                 </div>
               </div>
-              <div className="grid md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 <div>
                   <label htmlFor="billing-email" className={labelClass}>Email Address</label>
                   <input
@@ -347,60 +347,54 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
-              <div className="grid md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 <div>
                   <label htmlFor="billing-country" className={labelClass}>Country</label>
                   <select
                     id="billing-country"
                     className={inputClass}
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
+                    onChange={(e) => {
+                      setCountry(e.target.value);
+                      setState("");
+                    }}
                     required
                   >
                     <option value="">Select</option>
-                    <option value="Slovakia">Slovakia</option>
-                    <option value="Czech Republic">Czech Republic</option>
-                    <option value="Germany">Germany</option>
-                    <option value="Austria">Austria</option>
-                    <option value="United Kingdom">United Kingdom</option>
+                    {EUROPEAN_COUNTRIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="billing-district" className={labelClass}>District</label>
+                  <label htmlFor="billing-state" className={labelClass}>State</label>
                   <select
-                    id="billing-district"
+                    id="billing-state"
                     className={inputClass}
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    disabled={!country}
                   >
-                    <option value="">District</option>
-                    <option value="Bratislava">Bratislava</option>
-                    <option value="Trnava">Trnava</option>
-                    <option value="Nitra">Nitra</option>
-                    <option value="Žilina">Žilina</option>
-                    <option value="Banská Bystrica">Banská Bystrica</option>
-                    <option value="Prešov">Prešov</option>
-                    <option value="Košice">Košice</option>
+                    <option value="">
+                      {country ? "Select state" : "Select country first"}
+                    </option>
+                    {country && getStatesForCountry(country).map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label htmlFor="billing-city" className={labelClass}>City</label>
-                  <select
+                  <input
                     id="billing-city"
+                    type="text"
                     className={inputClass}
+                    placeholder="City"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
+                    autoComplete="address-level2"
                     required
-                  >
-                    <option value="">City</option>
-                    <option value="Bratislava">Bratislava</option>
-                    <option value="Košice">Košice</option>
-                    <option value="Prešov">Prešov</option>
-                    <option value="Žilina">Žilina</option>
-                    <option value="Nitra">Nitra</option>
-                    <option value="Banská Bystrica">Banská Bystrica</option>
-                    <option value="Trnava">Trnava</option>
-                  </select>
+                  />
                 </div>
                 <div>
                   <label htmlFor="billing-zip" className={labelClass}>Zip code</label>
@@ -446,17 +440,19 @@ export default function CheckoutPage() {
                   />
                   <span className="font-sans text-sm text-[#2A2B2A]">Cash On delivery</span>
                 </label>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="card"
-                    checked={paymentMethod === "card"}
-                    onChange={() => setPaymentMethod("card")}
-                    className="w-4 h-4 text-[#D0F198] focus:ring-[#D0F198]"
-                  />
-                  <span className="font-sans text-sm text-[#2A2B2A]">Pay with Card</span>
-                  <span className="flex items-center gap-1 ml-2">
+                <label className="flex items-center gap-3 cursor-pointer flex-wrap">
+                  <span className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="card"
+                      checked={paymentMethod === "card"}
+                      onChange={() => setPaymentMethod("card")}
+                      className="w-4 h-4 text-[#D0F198] focus:ring-[#D0F198]"
+                    />
+                    <span className="font-sans text-sm text-[#2A2B2A]">Pay with Card</span>
+                  </span>
+                  <span className="flex items-center gap-1 w-full sm:w-auto mt-1 sm:mt-0 sm:ml-2">
                     <Image src="/images/payments.svg" alt="MasterCard, VISA, Google Pay, Apple Pay" width={80} height={20} className="h-5 w-auto" />
                   </span>
                 </label>
@@ -476,7 +472,7 @@ export default function CheckoutPage() {
                       required={paymentMethod === "card"}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div>
                       <label htmlFor="card-cvv" className={labelClass}>CVV</label>
                       <input
@@ -516,14 +512,14 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              <label className="flex items-center gap-3 mt-4 cursor-pointer">
+              <label className="flex items-start sm:items-center gap-3 mt-4 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={useShippingAsBilling}
                   onChange={(e) => setUseShippingAsBilling(e.target.checked)}
-                  className="w-4 h-4 rounded border-[#e5e5e5] text-[#D0F198] focus:ring-[#D0F198]"
+                  className="w-4 h-4 mt-0.5 sm:mt-0 shrink-0 rounded border-[#e5e5e5] text-[#D0F198] focus:ring-[#D0F198]"
                 />
-                <span className="font-sans text-sm text-[#2A2B2A]">
+                <span className="font-sans text-sm text-[#2A2B2A] break-words">
                   Use shipping address as billing address
                 </span>
               </label>
@@ -540,9 +536,9 @@ export default function CheckoutPage() {
                   type="checkbox"
                   checked={saveInfo}
                   onChange={(e) => setSaveInfo(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-[#e5e5e5] text-[#D0F198] focus:ring-[#D0F198]"
+                  className="mt-1 w-4 h-4 shrink-0 rounded border-[#e5e5e5] text-[#D0F198] focus:ring-[#D0F198]"
                 />
-                <span className="font-sans text-sm text-[#2A2B2A]">
+                <span className="font-sans text-sm text-[#2A2B2A] break-words">
                   Save my information for a faster checkout
                 </span>
               </label>
@@ -580,19 +576,19 @@ export default function CheckoutPage() {
           </form>
 
           {/* Order Summary card */}
-          <aside className="lg:col-span-5">
-            <div className="sticky top-24 bg-white rounded-lg p-6 md:p-8 space-y-5 shadow-sm">
-              <h2 className="font-sans text-2xl font-bold text-[#2A2B2A]">
+          <aside className="lg:col-span-5 min-w-0 overflow-hidden">
+            <div className="lg:sticky lg:top-24 bg-white rounded-lg p-4 sm:p-6 md:p-8 space-y-5 shadow-sm min-w-0">
+              <h2 className="font-sans text-xl sm:text-2xl font-bold text-[#2A2B2A]">
                 Order Summary
               </h2>
 
-              <ul className="space-y-5">
+              <ul className="space-y-4 sm:space-y-5">
                 {items.map((item, index) => (
                   <li
                     key={`${item.productId}-${item.variationId ?? index}`}
-                    className="flex gap-4 items-center"
+                    className="flex gap-3 sm:gap-4 items-center"
                   >
-                    <div className="relative w-14 h-14 rounded overflow-hidden bg-[#f5f5f5] shrink-0">
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded overflow-hidden bg-[#f5f5f5] shrink-0">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -615,7 +611,7 @@ export default function CheckoutPage() {
               </ul>
 
               <div className="flex items-center justify-between gap-4 pt-2">
-                <h3 className="font-sans text-xl font-bold text-[#2A2B2A]">
+                <h3 className="font-sans text-lg sm:text-xl font-bold text-[#2A2B2A]">
                   Product Lists
                 </h3>
                 <Link
@@ -630,7 +626,7 @@ export default function CheckoutPage() {
                 <p className="font-sans text-sm font-medium text-[#2A2B2A] mb-2">
                   Discount Voucher
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     className="w-full rounded border border-[#e5e5e5] bg-white px-3 py-2.5 font-sans text-sm text-[#2A2B2A] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#D0F198]/50"

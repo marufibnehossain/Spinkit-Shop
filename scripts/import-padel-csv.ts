@@ -1,8 +1,11 @@
 /**
  * Import padel products from CSV (padel_dandoy_sports_products.csv)
  *
- * Usage: npx tsx scripts/import-padel-csv.ts [path-to-csv]
+ * Usage: npx tsx scripts/import-padel-csv.ts [path-to-csv] [--resume]
  * Example: npx tsx scripts/import-padel-csv.ts "d:\Dev Download\BEM Group\padel_dandoy_sports_products.csv"
+ * Example: npx tsx scripts/import-padel-csv.ts "d:\Dev Download\BEM Group\padel_dandoy_sports_products.csv" --resume
+ *
+ * --resume: Skip rows whose slug (from URL) already exists in DB (use if import stopped partway)
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -103,6 +106,11 @@ async function main() {
     process.exit(1);
   }
 
+  const resumeMode = process.argv.includes("--resume");
+  if (resumeMode) {
+    console.log("Resume mode: will skip products that already exist (by URL slug)");
+  }
+
   console.log(`Found ${rows.length} rows in CSV`);
 
   // Ensure Padel category exists
@@ -118,6 +126,7 @@ async function main() {
       (p) => p.slug
     )
   );
+  console.log(`${existingSlugs.size} existing products in DB`);
 
   let created = 0;
   let skipped = 0;
@@ -132,8 +141,15 @@ async function main() {
       continue;
     }
 
-    let slug =
-      slugFromUrl(row.url) || slugFromTitle(name);
+    const slugFromUrlResult = slugFromUrl(row.url);
+    let slug = slugFromUrlResult || slugFromTitle(name);
+    if (resumeMode && slugFromUrlResult && existingSlugs.has(slugFromUrlResult)) {
+      skipped++;
+      if (skipped <= 5 || skipped % 500 === 0) {
+        console.log(`  [resume] Skipping existing: ${slugFromUrlResult}`);
+      }
+      continue;
+    }
     slug = ensureUniqueSlug(slug, existingSlugs);
 
     const price = parseFloat(row.price?.replace(",", ".") || "0");
@@ -202,6 +218,9 @@ async function main() {
     } catch (e: unknown) {
       errors++;
       console.error(`Row ${i + 2}: ${name}`, e);
+      if (errors === 1) {
+        console.error("\nTip: If import was interrupted, run again with --resume to skip existing products and continue.");
+      }
     }
   }
 

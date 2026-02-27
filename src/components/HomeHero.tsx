@@ -47,17 +47,6 @@ export default function HomeHero() {
                 Shop Now
               </Button>
             </div>
-
-            {/* Right: rating */}
-            <div className="md:text-right">
-              <p className="flex items-start font-sans text-sm text-white/80">
-                <span className="font-sans text-[24px] font-semibold text-white">4.7/5</span>
-                <img src="/images/banner-star.png" alt="" className="ml-1 w-[80px] h-auto shrink-0" width={80} height={20} aria-hidden />
-              </p>
-              <p className="font-lato text-[16px] text-[#FFFFFF] mt-1">
-                20+ reviews on <span className="font-bold italic">Trustpilot</span>
-              </p>
-            </div>
           </div>
         </div>
       </div>

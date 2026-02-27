@@ -107,16 +107,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Bottom area (inside right block): one line copyright + Trustpilot, then payment icons */}
+          {/* Bottom area (inside right block): copyright, then payment icons */}
           <div className="border-t border-white/10 px-6 py-6 md:py-8 flex flex-col items-center gap-6">
             <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 text-center sm:text-left">
-              <p className="font-sans text-sm text-white/80 order-2 sm:order-1">
+              <p className="font-sans text-sm text-white/80">
                 © Spinkit.Shop 2026 - All rights reserved. Excellent 4.7 out of 5
               </p>
-              <div className="flex items-center justify-center gap-2 font-sans text-sm text-white/80 order-1 sm:order-2">
-                <span className="text-[#D6FC45]" aria-hidden>★</span>
-                <span>Trustpilot</span>
-              </div>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6" aria-label="Payment methods">
               <Image

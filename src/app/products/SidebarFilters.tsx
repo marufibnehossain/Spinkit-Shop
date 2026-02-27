@@ -8,9 +8,11 @@ import { useCurrencyStore } from "@/lib/currency-store";
 interface SidebarFiltersProps {
   categories: { id: string; name: string; slug?: string }[];
   priceRange: { min: number; max: number };
+  /** Called after applying a filter (e.g. to close mobile off-canvas) */
+  onApply?: () => void;
 }
 
-export default function SidebarFilters({ categories, priceRange }: SidebarFiltersProps) {
+export default function SidebarFilters({ categories, priceRange, onApply }: SidebarFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   useCurrencyStore((s) => s.currency);
@@ -42,7 +44,9 @@ export default function SidebarFilters({ categories, priceRange }: SidebarFilter
     const next = new URLSearchParams(searchParams.toString());
     if (value === "all") next.delete("category");
     else next.set("category", value);
+    next.delete("page");
     router.push(`/products?${next.toString()}`, { scroll: false });
+    onApply?.();
   }
 
   function setPriceRange(min: number, max: number) {
@@ -62,7 +66,9 @@ export default function SidebarFilters({ categories, priceRange }: SidebarFilter
       next.set("maxPrice", String(clampedMax));
     }
 
+    next.delete("page");
     router.push(`/products?${next.toString()}`, { scroll: false });
+    onApply?.();
   }
 
   return (

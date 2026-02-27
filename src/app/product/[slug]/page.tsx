@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data";
 import ProductWithVariations from "./ProductWithVariations";
 import RelatedProductsCarousel from "./RelatedProductsCarousel";
@@ -109,20 +108,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </section>
       )}
-
-      {/* Bottom image banner, full-width and flush with footer */}
-      <section className="w-full overflow-hidden rounded-none">
-        <div className="relative w-full aspect-[21/9] min-h-[200px] bg-[#f5f5f0]">
-          <Image
-            src="/images/product-page-banner.png"
-            alt="Table tennis paddles and ball on blue table"
-            fill
-            className="object-cover object-center"
-            sizes="(min-width: 1280px) 1280px, 100vw"
-            priority={false}
-          />
-        </div>
-      </section>
 
     </div>
   );

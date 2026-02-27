@@ -20,6 +20,7 @@ export default function ProductsClient({ sort }: { sort?: string }) {
     const v = e.target.value;
     if (v) next.set("sort", v);
     else next.delete("sort");
+    next.delete("page");
     router.push(`/products?${next.toString()}`);
   }
 

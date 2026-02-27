@@ -9,6 +9,7 @@ import VariationSelector from "./VariationSelector";
 import AddToCartButton from "./AddToCartButton";
 import FormatPrice from "@/components/FormatPrice";
 import { useWishlistStore } from "@/lib/wishlist-store";
+import WishlistHeartIcon from "@/components/WishlistHeartIcon";
 
 interface ProductDetailsProps {
   product: Product;
@@ -178,12 +179,10 @@ export default function ProductDetails({
                 <button
                   type="button"
                   onClick={handleWishlist}
-                  className="h-11 w-11 shrink-0 rounded-lg border border-border bg-bg flex items-center justify-center text-text hover:bg-surface transition-colors"
+                  className="h-11 w-11 shrink-0 rounded-lg border border-border bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
                   aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                 >
-                  <span className={`text-xl ${isInWishlist ? "text-red-500" : "text-muted"}`}>
-                    {isInWishlist ? "♥" : "♡"}
-                  </span>
+                  <WishlistHeartIcon filled={isInWishlist} size={20} className="text-[#2A2B2A]" />
                 </button>
               </div>
             </div>
@@ -196,12 +195,10 @@ export default function ProductDetails({
               <button
                 type="button"
                 onClick={handleWishlist}
-                className="h-11 w-11 shrink-0 rounded-lg border border-border bg-bg flex items-center justify-center text-text hover:bg-surface transition-colors"
+                className="h-11 w-11 shrink-0 rounded-lg border border-border bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
                 aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
               >
-                <span className={`text-xl ${isInWishlist ? "text-red-500" : "text-muted"}`}>
-                  {isInWishlist ? "♥" : "♡"}
-                </span>
+                <WishlistHeartIcon filled={isInWishlist} size={20} className="text-[#2A2B2A]" />
               </button>
             </div>
           </>

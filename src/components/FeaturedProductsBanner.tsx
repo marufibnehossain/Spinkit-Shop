@@ -33,16 +33,8 @@ export default function FeaturedProductsBanner({ products }: FeaturedProductsBan
         <div className="absolute inset-0 bg-black/20" aria-hidden />
       </div>
 
-      {/* Slide indicator — top-left blue box */}
-      <div
-        className="absolute top-6 left-6 z-10 w-10 h-10 bg-[#2050FC] flex items-center justify-center rounded-none"
-        aria-hidden
-      >
-        <span className="font-sans text-white text-xs font-medium">01</span>
-      </div>
-
-      {/* Overlaid lime product cards — lower right */}
-      <div className="relative z-10 mx-auto max-w-[1312px] px-4 md:px-6 flex flex-col items-end justify-end min-h-[420px] md:min-h-[500px] pb-8 md:pb-12">
+      {/* Overlaid lime product cards — lower right, full width */}
+      <div className="relative z-10 w-full px-4 md:px-6 flex flex-col items-end justify-end min-h-[420px] md:min-h-[500px] pb-8 md:pb-12">
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg sm:max-w-none sm:w-auto sm:ml-auto">
           {product1 && (
             <Link

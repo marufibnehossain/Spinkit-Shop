@@ -34,7 +34,7 @@ export default function StoreShell({ children }: { children: React.ReactNode }) 
     <BreadcrumbLabelProvider>
       <Header variant={headerVariant} />
       {showBreadcrumb && <BreadcrumbBar />}
-      <main className={`flex-1 ${isEcommerce ? "bg-[#F7F7F7]" : ""}`}>{children}</main>
+      <main className={`flex-1 min-w-0 overflow-x-hidden ${isEcommerce ? "bg-[#F7F7F7]" : ""}`}>{children}</main>
       <Footer />
       <CartToast />
     </BreadcrumbLabelProvider>

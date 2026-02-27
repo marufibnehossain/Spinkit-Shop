@@ -8,6 +8,7 @@ import RatingStars from "./RatingStars";
 import FormatPrice from "./FormatPrice";
 import { useCartStore } from "@/lib/cart-store";
 import { useWishlistStore } from "@/lib/wishlist-store";
+import WishlistHeartIcon from "@/components/WishlistHeartIcon";
 import { useCartToastStore } from "@/lib/cart-toast-store";
 
 interface ProductCardProps {
@@ -82,12 +83,10 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
                 e.stopPropagation();
                 handleWishlist(e);
               }}
-              className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-bg/90 border border-border flex items-center justify-center text-text hover:bg-surface transition-colors"
+              className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center hover:bg-gray-50 transition-colors"
               aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <span className={`text-xl ${isInWishlist ? "text-red-500" : "text-muted"}`}>
-                {isInWishlist ? "♥" : "♡"}
-              </span>
+              <WishlistHeartIcon filled={isInWishlist} size={20} className="text-[#2A2B2A]" />
             </button>
             <Image
               src={img}
@@ -179,12 +178,10 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
           <button
             type="button"
             onClick={handleWishlist}
-            className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-bg/90 border border-border flex items-center justify-center text-text hover:bg-surface transition-colors pointer-events-auto"
+            className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center hover:bg-gray-50 transition-colors pointer-events-auto"
             aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
           >
-            <span className={`text-xl ${isInWishlist ? "text-red-500" : "text-muted"}`}>
-              {isInWishlist ? "♥" : "♡"}
-            </span>
+            <WishlistHeartIcon filled={isInWishlist} size={20} className="text-[#2A2B2A]" />
           </button>
           {/* Badges: Sale, New, Bestseller */}
           <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1.5">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lato } from "next/font/google";
 import localFont from "next/font/local";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import StoreShell from "@/components/StoreShell";
@@ -38,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${neueMontreal.variable} ${latoFont.variable}`}>
       <body className="min-h-screen flex flex-col">
+        <NextTopLoader color="#CFFF40" height={3} showSpinner={false} />
         <SessionProvider>
           <StoreShell>{children}</StoreShell>
         </SessionProvider>
