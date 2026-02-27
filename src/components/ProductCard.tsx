@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import type { Product } from "@/lib/data";
 import RatingStars from "./RatingStars";
+import FormatPrice from "./FormatPrice";
 import { useCartStore } from "@/lib/cart-store";
 import { useWishlistStore } from "@/lib/wishlist-store";
 import { useCartToastStore } from "@/lib/cart-toast-store";
@@ -70,7 +71,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
 
   if (useLimeCard) {
     return (
-      <article className="group rounded-none overflow-hidden">
+      <article className="group rounded-none overflow-hidden bg-[#E9EBDD] shadow-[0_0_12px_rgba(0,0,0,0.06)]">
         <Link href={`/product/${product.slug}`} className="block">
           {/* Image area: light background, 310/320 aspect, no padding */}
           <div className="relative aspect-[310/320] overflow-hidden rounded-none bg-[#F7F7F0]">
@@ -103,7 +104,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
                 {product.name}
               </h3>
               <p className="font-sans text-base font-bold text-text mt-0.5">
-                €{product.price.toFixed(2)}
+                <FormatPrice price={product.price} />
               </p>
             </div>
             {!outOfStock && (
@@ -132,7 +133,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
 
   if (isBestSellers) {
     return (
-      <article className="rounded-none overflow-hidden flex flex-col h-full">
+      <article className="rounded-none overflow-hidden flex flex-col h-full shadow-[0_0_12px_rgba(0,0,0,0.06)]">
         <Link href={`/product/${product.slug}`} className="block flex-1 flex flex-col">
           <div className="relative aspect-square w-full overflow-hidden bg-[#f7f7f2]">
             <Image
@@ -143,13 +144,13 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
               sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
-          <div className="px-4 py-4 text-left bg-[#f7f7f2]">
-            <h3 className="font-sans font-bold text-text text-base">
+          <div className="px-4 py-4 text-left bg-[#f7f7f2] min-w-0">
+            <h3 className="font-sans font-bold text-text text-base truncate" title={product.name}>
               {product.name}
             </h3>
             <p className="font-sans text-sm text-muted mt-1">Starting at</p>
             <p className="font-sans font-bold text-text text-base mt-0.5">
-              €{product.price.toFixed(2)}
+              <FormatPrice price={product.price} />
             </p>
           </div>
         </Link>
@@ -158,7 +159,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
   }
 
   return (
-    <article className="group">
+    <article className="group shadow-[0_0_12px_rgba(0,0,0,0.06)]">
       <Link href={`/product/${product.slug}`} className="block">
         {/* Upper section: light sage green background, product image */}
         <div
@@ -212,7 +213,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="pointer-events-auto w-full rounded-lg border border-border bg-bg px-5 py-2.5 font-sans text-sm font-medium text-text shadow-sm hover:bg-surface hover:border-text/30 transition-colors"
+                className="pointer-events-auto w-full rounded-lg border border-border bg-bg px-5 py-2.5 font-sans text-sm font-medium text-text shadow hover:bg-surface hover:border-text/30 transition-colors"
               >
                 Add to cart
               </button>
@@ -233,14 +234,14 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
           <h3 className="font-sans text-sm font-medium text-text uppercase tracking-wide">
             {product.name}
           </h3>
-          <div className="mt-1 flex items-center justify-between gap-2 flex-wrap">
+            <div className="mt-1 flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-baseline gap-2">
               <span className="font-sans text-base font-medium text-text">
-                €{product.price.toFixed(2)} EUR
+                <FormatPrice price={product.price} />
               </span>
               {product.compareAt != null && (
                 <span className="font-sans text-sm text-muted line-through">
-                  €{product.compareAt.toFixed(2)} EUR
+                  <FormatPrice price={product.compareAt} />
                 </span>
               )}
             </div>

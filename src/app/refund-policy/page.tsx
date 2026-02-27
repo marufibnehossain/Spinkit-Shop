@@ -1,7 +1,7 @@
 export default function RefundPolicyPage() {
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
-      <section className="bg-white border-b border-[#E5E7EB]">
+    <div className="min-h-screen">
+      <section className="bg-white">
         <div className="mx-auto max-w-[960px] px-4 md:px-6 lg:px-8 py-12 md:py-16">
           <h1 className="font-sans text-3xl md:text-4xl font-bold text-[#111827] mb-4">
             Refund &amp; Returns Policy

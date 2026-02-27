@@ -52,7 +52,7 @@ export default function RelatedProductsCarousel({ products }: RelatedProductsCar
       {/* Indicator bar: blue under current position, grey track */}
       <div className="mt-6 flex w-full">
         <div
-          className="h-1.5 bg-[#2050FC] rounded-none shrink-0 transition-[flex-basis] duration-300"
+          className="h-1.5 rounded-none shrink-0 transition-[flex-basis] duration-300 bg-white"
           style={{
             flexBasis: scrollSnapList.length
               ? `${(100 / scrollSnapList.length) * (selectedIndex + 1)}%`

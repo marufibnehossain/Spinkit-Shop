@@ -13,41 +13,35 @@ export async function PATCH(
   try {
     const { attrId } = await params;
     const body = await req.json();
-    const { name, values } = body;
-    const updates: string[] = [];
-    const vals: any[] = [];
-    if (name !== undefined) {
-      updates.push("name = ?");
-      vals.push(name.trim());
-    }
+    const { name, values, displayType, displayData } = body;
+    const data: Record<string, unknown> = {};
+    if (name !== undefined) data.name = name.trim();
     if (values !== undefined) {
       if (!Array.isArray(values) || values.length === 0) {
         return NextResponse.json({ error: "Values must be a non-empty array" }, { status: 400 });
       }
-      updates.push('"values" = ?');
-      vals.push(JSON.stringify(values.map((v: string) => String(v).trim())));
+      data.values = JSON.stringify(values.map((v: string) => String(v).trim()));
     }
-    if (updates.length === 0) {
+    if (displayType !== undefined) {
+      data.displayType = displayType === "swatch" || displayType === "image" ? displayType : "button";
+    }
+    if (displayData !== undefined) {
+      data.displayData = displayData && typeof displayData === "object" ? JSON.stringify(displayData) : null;
+    }
+    if (Object.keys(data).length === 0) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }
-    updates.push("updatedAt = datetime('now')");
-    vals.push(attrId);
-    await prisma.$executeRawUnsafe(
-      `UPDATE ProductAttribute SET ${updates.join(", ")} WHERE id = ?`,
-      ...vals
-    );
-    const attrs = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      productId: string;
-      name: string;
-      values: string;
-    }>>(
-      'SELECT id, productId, name, "values" FROM ProductAttribute WHERE id = ?',
-      attrId
-    );
+    const attribute = await prisma.productAttribute.update({
+      where: { id: attrId },
+      data,
+    });
     return NextResponse.json({
-      ...attrs[0],
-      values: JSON.parse(attrs[0].values),
+      id: attribute.id,
+      productId: attribute.productId,
+      name: attribute.name,
+      values: JSON.parse(attribute.values) as string[],
+      displayType: attribute.displayType ?? "button",
+      displayData: attribute.displayData ? (JSON.parse(attribute.displayData) as Record<string, string>) : undefined,
     });
   } catch (e) {
     console.error("[Admin] Attribute update error:", e);
@@ -65,7 +59,7 @@ export async function DELETE(
   }
   try {
     const { attrId } = await params;
-    await prisma.$executeRawUnsafe("DELETE FROM ProductAttribute WHERE id = ?", attrId);
+    await prisma.productAttribute.delete({ where: { id: attrId } });
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[Admin] Attribute delete error:", e);

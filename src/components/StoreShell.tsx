@@ -22,7 +22,8 @@ export default function StoreShell({ children }: { children: React.ReactNode }) 
     pathname.startsWith("/products") ||
     pathname.startsWith("/product/") ||
     pathname.startsWith("/cart") ||
-    pathname.startsWith("/checkout");
+    pathname.startsWith("/checkout") ||
+    pathname.startsWith("/wishlist");
 
   const showBreadcrumb =
     isEcommerce || pathname.startsWith("/blog/");

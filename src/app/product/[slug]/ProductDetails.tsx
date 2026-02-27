@@ -7,6 +7,7 @@ import RatingStars from "@/components/RatingStars";
 import Accordion from "@/components/Accordion";
 import VariationSelector from "./VariationSelector";
 import AddToCartButton from "./AddToCartButton";
+import FormatPrice from "@/components/FormatPrice";
 import { useWishlistStore } from "@/lib/wishlist-store";
 
 interface ProductDetailsProps {
@@ -83,7 +84,9 @@ export default function ProductDetails({
       content:
         product.ingredients || product.howToUse
           ? [product.ingredients, product.howToUse].filter(Boolean).join("\n\n")
-          : "For detailed specifications, sizing advice, or help choosing the right setup, get in touch with our team and we’ll be happy to help.",
+          : product.attributes?.length
+            ? product.attributes.map((a) => `${a.name}: ${a.values.join(", ")}`).join("\n\n")
+            : "For detailed specifications, sizing advice, or help choosing the right setup, get in touch with our team and we'll be happy to help.",
     },
     {
       title: "Materials & care",
@@ -125,11 +128,11 @@ export default function ProductDetails({
         )}
       </div>
       <p className="mt-3 font-sans text-2xl md:text-3xl font-semibold text-text">
-        €{currentPrice.toFixed(2)} EUR
+        <FormatPrice price={currentPrice} />
       </p>
       {product.compareAt != null && (
         <p className="mt-1 font-sans text-sm text-muted line-through">
-          €{product.compareAt.toFixed(2)} EUR
+          <FormatPrice price={product.compareAt} />
         </p>
       )}
       <p

@@ -158,11 +158,22 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   };
 
   if (p.attributes.length > 0) {
-    product.attributes = p.attributes.map((a) => ({
-      id: a.id,
-      name: a.name,
-      values: JSON.parse(a.values) as string[],
-    }));
+    product.attributes = p.attributes.map((a: { id: string; name: string; values: string; displayType?: string | null; displayData?: string | null }) => {
+      const att: { id: string; name: string; values: string[]; displayType?: "button" | "swatch" | "image"; displayData?: Record<string, string> } = {
+        id: a.id,
+        name: a.name,
+        values: JSON.parse(a.values) as string[],
+      };
+      if (a.displayType && ["button", "swatch", "image"].includes(a.displayType)) {
+        att.displayType = a.displayType as "button" | "swatch" | "image";
+      }
+      if (a.displayData) {
+        try {
+          att.displayData = JSON.parse(a.displayData) as Record<string, string>;
+        } catch (_) {}
+      }
+      return att;
+    });
   }
 
   if (p.variations.length > 0) {

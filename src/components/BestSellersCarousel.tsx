@@ -42,7 +42,7 @@ export default function BestSellersCarousel({ products }: BestSellersCarouselPro
 
   return (
     <div className="w-full">
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div className="overflow-hidden py-3" ref={emblaRef}>
         <div className="flex gap-4 md:gap-6 touch-pan-y">
           {products.map((product) => (
             <div

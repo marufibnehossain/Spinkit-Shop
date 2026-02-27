@@ -17,21 +17,23 @@ export default function AboutPage() {
             className="object-cover object-center"
           />
           <div className="absolute inset-0 bg-sage-dark/50 mix-blend-multiply" aria-hidden />
-          <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-10 flex flex-col items-center justify-center text-center">
-            <h1 className="font-sans text-[44px] md:text-[64px] lg:text-[72px] font-black leading-none text-[#CFFF40]">
-              ABOUT
-            </h1>
-            <p className="mt-4 max-w-xl font-sans text-sm md:text-base text-hero-text">
-              Born from a passion for table tennis, we&apos;re on a mission to equip
-              players of all levels with the best gear in the game.
-            </p>
+          <div className="relative z-10 w-full flex flex-col items-center justify-center text-center">
+            <div className="mx-auto max-w-[1315px] px-4 md:px-6 lg:px-10 w-full">
+              <h1 className="font-sans text-[44px] md:text-[64px] lg:text-[72px] font-black leading-none text-[#CFFF40]">
+                ABOUT
+              </h1>
+              <p className="mt-4 max-w-xl font-sans text-sm md:text-base text-hero-text mx-auto">
+                Born from a passion for table tennis, we&apos;re on a mission to equip
+                players of all levels with the best gear in the game.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Our story section */}
       <section className="bg-white py-12 md:py-16 lg:py-20">
-        <div className="container mx-auto px-4 md:px-6 lg:px-10 grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-14 items-start">
+        <div className="mx-auto max-w-[1315px] px-4 md:px-6 lg:px-10 grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-14 items-start">
           <div>
             <h2 className="font-sans text-xl md:text-2xl font-semibold text-[#111827] mb-4">
               Our Story
@@ -66,7 +68,7 @@ export default function AboutPage() {
 
       {/* Three feature tiles */}
       <section className="bg-[#F9F5EC] py-10 md:py-14">
-        <div className="container mx-auto px-4 md:px-6 lg:px-10 grid md:grid-cols-3 gap-6">
+        <div className="mx-auto max-w-[1315px] px-4 md:px-6 lg:px-10 grid md:grid-cols-3 gap-6">
           {[
             {
               title: "Performance",
@@ -109,7 +111,7 @@ export default function AboutPage() {
 
       {/* Stats strip with icons and counters */}
       <section className="bg-white py-10 md:py-12 border-b border-[#E5E7EB]">
-        <div className="container mx-auto px-4 md:px-6 lg:px-10">
+        <div className="mx-auto max-w-[1315px] px-4 md:px-6 lg:px-10">
           <AboutStats />
         </div>
       </section>

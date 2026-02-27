@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/data";
+import FormatPrice from "./FormatPrice";
 
 interface FeaturedProductsBannerProps {
   products: Product[];
@@ -61,7 +64,7 @@ export default function FeaturedProductsBanner({ products }: FeaturedProductsBan
                 </h3>
                 <p className="font-sans text-xs text-muted mt-0.5">Starting at</p>
                 <p className="font-sans font-bold text-text text-sm mt-0.5">
-                  €{product1.price.toFixed(2)}
+                  <FormatPrice price={product1.price} />
                 </p>
               </div>
             </Link>
@@ -86,7 +89,7 @@ export default function FeaturedProductsBanner({ products }: FeaturedProductsBan
                 </h3>
                 <p className="font-sans text-xs text-muted mt-0.5">Starting at</p>
                 <p className="font-sans font-bold text-text text-sm mt-0.5">
-                  €{product2.price.toFixed(2)}
+                  <FormatPrice price={product2.price} />
                 </p>
               </div>
             </Link>

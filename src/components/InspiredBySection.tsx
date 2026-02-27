@@ -28,7 +28,7 @@ export default function InspiredBySection() {
         {/* 2. Right-side content block + 3. Polaroids in bottom area */}
         <div className="relative mt-10 md:mt-14 min-h-[100px] md:min-h-[100px] lg:min-h-[600px] xl:min-h-[560px]">
           {/* Paragraph + CTA — right-aligned on desktop, full-width on mobile */}
-          <div className="lg:absolute lg:top-0 lg:right-0 lg:max-w-md text-left">
+          <div className="lg:absolute lg:top-0 lg:right-0 lg:max-w-md text-left z-40">
             <p className="font-sans md:text-lg text-base text-[#2A2B2A] leading-relaxed">
               We are dedicated to providing{" "}
               <span className="italic font-semibold">high-quality</span> table tennis equipment for players of all levels — from beginners to professionals. Our carefully selected{" "}
@@ -36,7 +36,7 @@ export default function InspiredBySection() {
             </p>
             <Link
               href="/about"
-              className="mt-6 inline-flex items-center justify-center bg-[#D6FC45] text-[#2A2B2A] font-sans font-medium text-sm px-6 py-3 rounded-md shadow-md hover:opacity-90 transition-opacity"
+              className="mt-6 inline-flex items-center justify-center bg-[#D6FC45] text-[#2A2B2A] font-sans font-medium text-sm px-6 py-3 shadow-md hover:opacity-90 transition-opacity"
             >
               About Us
             </Link>

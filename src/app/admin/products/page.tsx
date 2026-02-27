@@ -146,7 +146,7 @@ export default function AdminProductsPage() {
         longDesc: form.longDesc.trim() || null,
         ingredients: form.ingredients.trim() || null,
         howToUse: form.howToUse.trim() || null,
-        stock: parseInt(form.stock, 10) || 0,
+        stock: form.trackInventory ? (parseInt(form.stock, 10) || 0) : 0,
         trackInventory: form.trackInventory,
         badge: form.badge?.trim() || null,
       };
@@ -498,37 +498,27 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-sans text-sm font-medium text-text mb-1.5">Stock</label>
-                  <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-2 font-sans text-sm text-text cursor-pointer">
-                      <input
-                        type="radio"
-                        name="stockMode"
-                        checked={form.trackInventory}
-                        onChange={() => setForm({ ...form, trackInventory: true })}
-                        className="rounded border-border"
-                      />
-                      Limited (track quantity)
-                    </label>
-                    <label className="flex items-center gap-2 font-sans text-sm text-text cursor-pointer">
-                      <input
-                        type="radio"
-                        name="stockMode"
-                        checked={!form.trackInventory}
-                        onChange={() => setForm({ ...form, trackInventory: false })}
-                        className="rounded border-border"
-                      />
-                      Unlimited
-                    </label>
-                  </div>
-                  {form.trackInventory && (
+                  <label className="flex items-center gap-2 font-sans text-sm font-medium text-text mb-1.5 cursor-pointer">
                     <input
-                      type="number"
-                      min="0"
-                      value={form.stock}
-                      onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                      className="mt-2 w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                      type="checkbox"
+                      checked={form.trackInventory}
+                      onChange={(e) => setForm({ ...form, trackInventory: e.target.checked })}
+                      className="rounded border-border"
                     />
+                    Manage stock
+                  </label>
+                  {form.trackInventory && (
+                    <div className="mt-2">
+                      <label className="block font-sans text-sm font-medium text-text mb-1">Stock *</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.stock}
+                        onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                        className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                        required
+                      />
+                    </div>
                   )}
                 </div>
               </div>

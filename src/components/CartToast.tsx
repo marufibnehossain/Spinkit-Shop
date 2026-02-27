@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartToastStore } from "@/lib/cart-toast-store";
+import FormatPrice from "./FormatPrice";
 
 export default function CartToast() {
   const { isOpen, item, hideToast } = useCartToastStore();
@@ -38,7 +39,7 @@ export default function CartToast() {
             {item.name}
           </p>
           <p className="font-sans text-xs text-muted">
-            €{item.price.toFixed(2)} EUR
+            <FormatPrice price={item.price} />
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">

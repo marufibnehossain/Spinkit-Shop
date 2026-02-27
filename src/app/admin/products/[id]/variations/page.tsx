@@ -9,7 +9,11 @@ type Attribute = {
   id: string;
   name: string;
   values: string[];
+  displayType?: "button" | "swatch" | "image";
+  displayData?: Record<string, string>;
 };
+
+const UNLIMITED_STOCK = 999999;
 
 type Variation = {
   id: string;
@@ -30,14 +34,20 @@ export default function ProductVariationsPage() {
   const [loading, setLoading] = useState(true);
   const [attrModal, setAttrModal] = useState<"new" | Attribute | null>(null);
   const [varModal, setVarModal] = useState<"new" | Variation | null>(null);
-  const [attrForm, setAttrForm] = useState({ name: "", values: "" });
+  const [attrForm, setAttrForm] = useState({
+    name: "",
+    values: "",
+    displayType: "button" as "button" | "swatch" | "image",
+    displayData: "", // "value=hex" or "value=url" per line for swatch/image
+  });
   const [varForm, setVarForm] = useState<{
     attributes: Record<string, string>;
     price: string;
     stock: string;
+    manageStock: boolean;
     sku: string;
     images: string;
-  }>({ attributes: {}, price: "", stock: "0", sku: "", images: "" });
+  }>({ attributes: {}, price: "", stock: "0", manageStock: true, sku: "", images: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -62,14 +72,35 @@ export default function ProductVariationsPage() {
     setLoading(false);
   }
 
+  function parseDisplayData(str: string): Record<string, string> {
+    const out: Record<string, string> = {};
+    str.split(/[\n,]/).forEach((line) => {
+      const m = line.trim().match(/^([^=]+)=(.+)$/);
+      if (m) out[m[1].trim()] = m[2].trim();
+    });
+    return out;
+  }
+
+  function formatDisplayData(data?: Record<string, string>): string {
+    if (!data || Object.keys(data).length === 0) return "";
+    return Object.entries(data)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("\n");
+  }
+
   function openNewAttribute() {
-    setAttrForm({ name: "", values: "" });
+    setAttrForm({ name: "", values: "", displayType: "button", displayData: "" });
     setError("");
     setAttrModal("new");
   }
 
   function openEditAttribute(a: Attribute) {
-    setAttrForm({ name: a.name, values: a.values.join(", ") });
+    setAttrForm({
+      name: a.name,
+      values: a.values.join(", "),
+      displayType: a.displayType ?? "button",
+      displayData: formatDisplayData(a.displayData),
+    });
     setError("");
     setAttrModal(a);
   }
@@ -85,11 +116,20 @@ export default function ProductVariationsPage() {
         setSaving(false);
         return;
       }
+      const displayDataObj =
+        attrForm.displayType !== "button" && attrForm.displayData.trim()
+          ? parseDisplayData(attrForm.displayData)
+          : undefined;
       if (attrModal === "new") {
         const res = await fetch(`/api/admin/products/${productId}/attributes`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: attrForm.name.trim(), values }),
+          body: JSON.stringify({
+            name: attrForm.name.trim(),
+            values,
+            displayType: attrForm.displayType,
+            displayData: displayDataObj,
+          }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -101,7 +141,12 @@ export default function ProductVariationsPage() {
         const res = await fetch(`/api/admin/products/${productId}/attributes/${attrModal.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: attrForm.name.trim(), values }),
+          body: JSON.stringify({
+            name: attrForm.name.trim(),
+            values,
+            displayType: attrForm.displayType,
+            displayData: displayDataObj,
+          }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -162,16 +207,18 @@ export default function ProductVariationsPage() {
     attributes.forEach(a => {
       if (a.values.length > 0) initialAttrs[a.name] = a.values[0];
     });
-    setVarForm({ attributes: initialAttrs, price: "", stock: "0", sku: "", images: "" });
+    setVarForm({ attributes: initialAttrs, price: "", stock: "0", manageStock: true, sku: "", images: "" });
     setError("");
     setVarModal("new");
   }
 
   function openEditVariation(v: Variation) {
+    const managesStock = v.stock < UNLIMITED_STOCK;
     setVarForm({
       attributes: v.attributes,
       price: v.price ? String(v.price) : "",
-      stock: String(v.stock),
+      stock: managesStock ? String(v.stock) : "0",
+      manageStock: managesStock,
       sku: v.sku || "",
       images: v.images ? v.images.join(", ") : "",
     });
@@ -187,7 +234,7 @@ export default function ProductVariationsPage() {
       const payload = {
         attributes: varForm.attributes,
         price: varForm.price ? parseFloat(varForm.price) : null,
-        stock: parseInt(varForm.stock, 10) || 0,
+        stock: varForm.manageStock ? (parseInt(varForm.stock, 10) || 0) : UNLIMITED_STOCK,
         sku: varForm.sku.trim() || null,
         images: varForm.images.split(",").map(s => s.trim()).filter(Boolean),
       };
@@ -342,8 +389,8 @@ export default function ProductVariationsPage() {
                     <td className="p-3 text-right text-text">
                       {v.price ? `$${v.price.toFixed(2)}` : "Base price"}
                     </td>
-                    <td className={`p-3 text-right ${v.stock === 0 ? "text-red-600" : v.stock <= 5 ? "text-amber-600" : "text-text"}`}>
-                      {v.stock}
+                    <td className={`p-3 text-right ${v.stock >= UNLIMITED_STOCK ? "text-muted" : v.stock === 0 ? "text-red-600" : v.stock <= 5 ? "text-amber-600" : "text-text"}`}>
+                      {v.stock >= UNLIMITED_STOCK ? "∞" : v.stock}
                     </td>
                     <td className="p-3 text-muted">{v.sku || "—"}</td>
                     <td className="p-3 flex gap-2">
@@ -401,6 +448,53 @@ export default function ProductVariationsPage() {
                   required
                 />
               </div>
+              <div>
+                <label className="block font-sans text-sm font-medium text-text mb-1">Display as</label>
+                <select
+                  value={attrForm.displayType}
+                  onChange={(e) =>
+                    setAttrForm({
+                      ...attrForm,
+                      displayType: e.target.value as "button" | "swatch" | "image",
+                    })
+                  }
+                  className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                >
+                  <option value="button">Button (text label)</option>
+                  <option value="swatch">Swatch (color dots)</option>
+                  <option value="image">Image (small round images)</option>
+                </select>
+              </div>
+              {attrForm.displayType === "swatch" && (
+                <div>
+                  <label className="block font-sans text-sm font-medium text-text mb-1">
+                    Color mapping (value=hex, one per line)
+                  </label>
+                  <textarea
+                    value={attrForm.displayData}
+                    onChange={(e) => setAttrForm({ ...attrForm, displayData: e.target.value })}
+                    placeholder={"Red=#ff0000\nBlue=#0000ff\nBlack=#000000"}
+                    rows={3}
+                    className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                  />
+                  <p className="mt-1 font-sans text-xs text-muted">Format: value=hex (e.g. Red=#ff0000)</p>
+                </div>
+              )}
+              {attrForm.displayType === "image" && (
+                <div>
+                  <label className="block font-sans text-sm font-medium text-text mb-1">
+                    Image mapping (value=url, one per line)
+                  </label>
+                  <textarea
+                    value={attrForm.displayData}
+                    onChange={(e) => setAttrForm({ ...attrForm, displayData: e.target.value })}
+                    placeholder={"Red=/images/red.png\nBlue=/images/blue.png"}
+                    rows={3}
+                    className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                  />
+                  <p className="mt-1 font-sans text-xs text-muted">Format: value=url (e.g. Red=/images/red.png)</p>
+                </div>
+              )}
               <div className="flex gap-2 pt-2">
                 <Button type="submit" variant="primary" disabled={saving}>
                   {saving ? "Saving…" : attrModal === "new" ? "Create" : "Update"}
@@ -459,15 +553,28 @@ export default function ProductVariationsPage() {
                 />
               </div>
               <div>
-                <label className="block font-sans text-sm font-medium text-text mb-1">Stock *</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={varForm.stock}
-                  onChange={(e) => setVarForm({ ...varForm, stock: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
-                  required
-                />
+                <label className="flex items-center gap-2 font-sans text-sm font-medium text-text mb-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={varForm.manageStock}
+                    onChange={(e) => setVarForm({ ...varForm, manageStock: e.target.checked })}
+                    className="rounded border-border"
+                  />
+                  Manage stock
+                </label>
+                {varForm.manageStock && (
+                  <div className="mt-2">
+                    <label className="block font-sans text-sm font-medium text-text mb-1">Stock *</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={varForm.stock}
+                      onChange={(e) => setVarForm({ ...varForm, stock: e.target.value })}
+                      className="w-full rounded-lg border border-border bg-bg px-4 py-2 font-sans text-sm"
+                      required
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block font-sans text-sm font-medium text-text mb-1">SKU</label>

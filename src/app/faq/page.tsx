@@ -31,7 +31,7 @@ export default function FAQPage() {
 
       {/* Page heading + unique FAQ box */}
       <section className="bg-white py-12 md:py-16 lg:py-20">
-        <div className="container mx-auto px-4 md:px-6 lg:px-10 flex flex-col items-center">
+        <div className="container mx-auto px-4 md:px-6 lg:px-10 flex flex-col items-center w-full">
           <div className="text-center max-w-3xl">
             <h2 className="font-sans text-2xl md:text-3xl lg:text-4xl font-semibold text-[#111827] mb-4">
               Frequently Asked Questions

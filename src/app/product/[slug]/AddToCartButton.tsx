@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import type { Product, ProductVariation } from "@/lib/data";
 import { getStockLabel } from "@/lib/data";
 import { useCartStore } from "@/lib/cart-store";
+import { useCurrencyStore } from "@/lib/currency-store";
 import QuantityStepper from "@/components/QuantityStepper";
 import Button from "@/components/Button";
 
@@ -15,12 +16,21 @@ interface AddToCartButtonProps {
   hideStockLabel?: boolean;
 }
 
+const UNLIMITED_STOCK = 999999;
+
 export default function AddToCartButton({ product, selectedVariation, selectedAttributes, hideStockLabel }: AddToCartButtonProps) {
+  useCurrencyStore((s) => s.currency);
+  const formatPrice = useCurrencyStore((s) => s.formatPrice);
+  const hasVariations = (product.attributes?.length ?? 0) > 0 && (product.variations?.length ?? 0) > 0;
+  const mustSelectVariation = hasVariations && !selectedVariation;
   const currentPrice = selectedVariation?.price ?? product.price;
   const unlimitedStock = product.trackInventory === false;
-  const currentStock = unlimitedStock ? 999 : (selectedVariation?.stock ?? product.stock);
+  const variationStock = selectedVariation?.stock ?? 0;
+  const isVariationUnlimited = variationStock >= UNLIMITED_STOCK;
+  const effectiveUnlimited = unlimitedStock || (hasVariations && isVariationUnlimited);
+  const currentStock = effectiveUnlimited ? 999 : (selectedVariation?.stock ?? product.stock);
   const currentImages = selectedVariation?.images ?? product.images;
-  const maxQty = unlimitedStock ? 999 : Math.max(0, currentStock);
+  const maxQty = effectiveUnlimited ? 999 : Math.max(0, currentStock);
   const [quantity, setQuantity] = useState(() => Math.min(1, maxQty));
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = useState(false);
@@ -30,8 +40,9 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
   }, [maxQty]);
 
   function handleAdd() {
-    if (!unlimitedStock && currentStock <= 0) return;
-    const qty = unlimitedStock ? quantity : Math.min(quantity, currentStock);
+    if (mustSelectVariation) return;
+    if (!effectiveUnlimited && currentStock <= 0) return;
+    const qty = effectiveUnlimited ? quantity : Math.min(quantity, currentStock);
     const variationName = selectedVariation && selectedAttributes
       ? `${product.name} (${Object.values(selectedAttributes).join(", ")})`
       : product.name;
@@ -48,12 +59,12 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
     setTimeout(() => setAdded(false), 2000);
   }
 
-  const outOfStock = !unlimitedStock && currentStock <= 0;
-  const stockLabel = unlimitedStock ? "In stock" : getStockLabel(currentStock);
+  const outOfStock = mustSelectVariation || (!effectiveUnlimited && currentStock <= 0);
+  const stockLabel = effectiveUnlimited ? "In stock" : getStockLabel(currentStock);
 
   return (
     <div className="flex flex-1 min-w-0 flex-wrap items-center gap-3">
-      {!outOfStock && (
+      {!outOfStock && !mustSelectVariation && (
         <QuantityStepper
           value={quantity}
           onChange={(v) => setQuantity(Math.min(Math.max(1, v), maxQty))}
@@ -68,11 +79,13 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
         disabled={outOfStock}
         className="h-11 flex-1 min-w-0 !bg-[#D0F198] border border-[#D0F198] text-sm md:text-base font-medium hover:bg-[#D8FF70]"
       >
-        {outOfStock
-          ? "Out of stock"
-          : added
-            ? "Added to cart"
-            : `Add to Cart - €${currentPrice.toFixed(2)} EUR`}
+        {mustSelectVariation
+          ? "Please select options"
+          : outOfStock
+            ? "Out of stock"
+            : added
+              ? "Added to cart"
+              : `Add to Cart - ${formatPrice(currentPrice)}`}
       </Button>
       {!hideStockLabel && (
         <span

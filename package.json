@@ -13,7 +13,8 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "import:padel": "tsx scripts/import-padel-csv.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -22,6 +23,7 @@
     "embla-carousel-react": "^8.6.0",
     "next": "^14.2.35",
     "next-auth": "^4.24.13",
+    "papaparse": "^5.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "resend": "^4.0.0",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.20",

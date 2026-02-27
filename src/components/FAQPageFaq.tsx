@@ -100,7 +100,7 @@ export default function FAQPageFaq() {
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0];
 
   return (
-    <div className="mt-10 mx-auto max-w-4xl bg-[#D6FC45] border border-[#D6FC45] rounded-none shadow-sm">
+    <div className="mt-10 w-full max-w-4xl mx-auto bg-[#D6FC45] border border-[#D6FC45] rounded-none shadow-sm overflow-hidden">
       {/* Tabs */}
       <div className="border-b border-black/10 px-6 pt-4 pb-2 overflow-x-auto">
         <div className="flex gap-6 min-w-max text-sm md:text-base font-sans">
@@ -142,7 +142,7 @@ export default function FAQPageFaq() {
               >
                 <span className="font-sans text-sm md:text-base text-black">{item.q}</span>
                 <span
-                  className={`flex-shrink-0 w-5 h-5 flex items-center justify-center text-black transition-transform duration-200 ${
+                  className={`flex-shrink-0 w-5 h-5 flex items-center justify-center text-black transition-transform duration-300 ease-out ${
                     isOpen ? "rotate-45" : ""
                   }`}
                   aria-hidden
@@ -152,11 +152,15 @@ export default function FAQPageFaq() {
                   </svg>
                 </span>
               </button>
-              {isOpen && (
-                <div className="pb-3">
-                  <p className="font-sans text-xs md:text-sm text-black/80 leading-relaxed pr-6">{item.a}</p>
+              <div
+                className={`grid transition-[grid-template-rows] duration-300 ease-out ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+              >
+                <div className="min-h-0 overflow-hidden">
+                  <div className="pb-3">
+                    <p className="font-sans text-xs md:text-sm text-black/80 leading-relaxed pr-6 break-words">{item.a}</p>
+                  </div>
                 </div>
-              )}
+              </div>
             </li>
           );
         })}

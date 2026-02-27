@@ -3,10 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart-store";
+import { useCurrencyStore } from "@/lib/currency-store";
 import QuantityStepper from "@/components/QuantityStepper";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getSubtotal } = useCartStore();
+  useCurrencyStore((s) => s.currency);
+  const formatPrice = useCurrencyStore((s) => s.formatPrice);
   const subtotal = getSubtotal();
   const shippingEstimate = subtotal >= 50 ? 0 : 9.99;
   const total = subtotal + shippingEstimate;
@@ -64,7 +67,7 @@ export default function CartPage() {
                         {item.name}
                       </Link>
                       <p className="font-sans text-sm text-muted mt-0.5">
-                        €{item.price.toFixed(2)} EUR
+                        {formatPrice(item.price)}
                       </p>
                       <div className="mt-2 flex items-center gap-4">
                         <QuantityStepper
@@ -82,7 +85,7 @@ export default function CartPage() {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-sans font-medium text-text">
-                        €{(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
                   </li>
@@ -100,22 +103,20 @@ export default function CartPage() {
               <div className="space-y-2 font-sans text-sm border-t border-[#d0cdc9] pt-4">
                 <div className="flex justify-between text-muted">
                   <span>Subtotal</span>
-                  <span>€{subtotal.toFixed(2)}</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-muted">
                   <span>Shipping</span>
-                  <span>
-                    {shippingEstimate === 0 ? "€0.00" : `€${shippingEstimate.toFixed(2)}`}
-                  </span>
+                  <span>{formatPrice(shippingEstimate)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-text pt-2 border-t border-[#d0cdc9]">
                   <span>Total</span>
-                  <span>€{total.toFixed(2)}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
               </div>
               {subtotal < 50 && (
                 <p className="font-sans text-xs text-muted mt-2">
-                  Add €{(50 - subtotal).toFixed(2)} more for free shipping.
+                  Add {formatPrice(50 - subtotal)} more for free shipping.
                 </p>
               )}
               <Link

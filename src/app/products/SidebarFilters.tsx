@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCurrencyStore } from "@/lib/currency-store";
 
 interface SidebarFiltersProps {
   categories: { id: string; name: string; slug?: string }[];
@@ -12,6 +13,8 @@ interface SidebarFiltersProps {
 export default function SidebarFilters({ categories, priceRange }: SidebarFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  useCurrencyStore((s) => s.currency);
+  const formatPriceCompact = useCurrencyStore((s) => s.formatPriceCompact);
   const currentCategory = searchParams.get("category") ?? "all";
   const minFromQuery = searchParams.get("minPrice");
   const maxFromQuery = searchParams.get("maxPrice");
@@ -108,7 +111,7 @@ export default function SidebarFilters({ categories, priceRange }: SidebarFilter
         <div className="flex items-center justify-between mb-2">
           <h2 className="font-sans text-sm font-semibold text-text">Price</h2>
           <span className="font-sans text-xs text-muted">
-            €{priceValue[0]} – €{priceValue[1]}
+            {formatPriceCompact(priceValue[0])} – {formatPriceCompact(priceValue[1])}
           </span>
         </div>
         {/* Radix dual-thumb slider */}

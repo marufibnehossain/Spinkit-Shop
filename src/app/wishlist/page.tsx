@@ -80,12 +80,14 @@ export default function WishlistPage() {
   }, [mergedItems]);
 
   async function handleRemove(productId: string, slug: string) {
+    // Optimistically remove from UI immediately
+    removeItem(productId);
+    setDbItems((prev) => prev.filter((p) => p.id !== productId));
     if (session) {
       try {
         await fetch(`/api/account/wishlist?productId=${encodeURIComponent(productId)}`, { method: "DELETE" });
       } catch (_) {}
     }
-    removeItem(productId);
   }
 
   const displayItems = status === "loading" || loadingDb ? items : mergedItems;

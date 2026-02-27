@@ -38,7 +38,7 @@ export default function ProductGallery({ product, selectedVariation }: ProductGa
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-white">
       <div className="relative aspect-[4/3] overflow-hidden bg-[#F7F7F2]">
         <Image
           src={mainImage}
@@ -53,7 +53,7 @@ export default function ProductGallery({ product, selectedVariation }: ProductGa
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 h-9 w-9 rounded-none bg-[#CFFF40] text-text flex items-center justify-center hover:bg-[#D8FF70] transition-colors"
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-9 w-9 rounded-none bg-[#D0F198] text-text flex items-center justify-center hover:bg-[#D8FF70] transition-colors"
               aria-label="Previous image"
             >
               <svg
@@ -73,7 +73,7 @@ export default function ProductGallery({ product, selectedVariation }: ProductGa
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 h-9 w-9 rounded-none bg-[#CFFF40] text-text flex items-center justify-center hover:bg-[#D8FF70] transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-9 w-9 rounded-none bg-[#D0F198] text-text flex items-center justify-center hover:bg-[#D8FF70] transition-colors"
               aria-label="Next image"
             >
               <svg
@@ -94,14 +94,14 @@ export default function ProductGallery({ product, selectedVariation }: ProductGa
         )}
       </div>
       {displayImages.length > 1 && (
-        <div className="flex justify-center gap-2 pb-1">
+        <div className="flex justify-center gap-2 pb-3">
           {displayImages.map((_, index) => (
             <button
               key={index}
               type="button"
               onClick={() => goToImage(index)}
-              className={`h-1.5 w-4 rounded-full transition-colors ${
-                index === currentIndex ? "bg-[#CFFF40]" : "bg-muted/40"
+              className={`h-3 w-3 rounded-none transition-colors ${
+                index === currentIndex ? "bg-[#CFFF40]" : "bg-[#E9E9E9]"
               }`}
               aria-label={`Go to image ${index + 1}`}
               aria-pressed={index === currentIndex}

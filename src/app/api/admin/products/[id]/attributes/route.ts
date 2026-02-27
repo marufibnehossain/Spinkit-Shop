@@ -12,18 +12,17 @@ export async function GET(
   }
   try {
     const { id } = await params;
-    const attributes = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      productId: string;
-      name: string;
-      values: string;
-    }>>(
-      'SELECT id, productId, name, "values" FROM ProductAttribute WHERE productId = ? ORDER BY name ASC',
-      id
-    );
-    return NextResponse.json(attributes.map(a => ({
-      ...a,
-      values: JSON.parse(a.values),
+    const attributes = await prisma.productAttribute.findMany({
+      where: { productId: id },
+      orderBy: { name: "asc" },
+    });
+    return NextResponse.json(attributes.map((a) => ({
+      id: a.id,
+      productId: a.productId,
+      name: a.name,
+      values: JSON.parse(a.values) as string[],
+      displayType: a.displayType ?? "button",
+      displayData: a.displayData ? (JSON.parse(a.displayData) as Record<string, string>) : undefined,
     })));
   } catch (e) {
     console.error("[Admin] Attributes get error:", e);
@@ -42,30 +41,26 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await req.json();
-    const { name, values } = body;
+    const { name, values, displayType, displayData } = body;
     if (!name || !Array.isArray(values) || values.length === 0) {
       return NextResponse.json({ error: "Name and values array are required" }, { status: 400 });
     }
-    const attrId = `attr-${Date.now()}`;
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO ProductAttribute (id, productId, name, "values", createdAt, updatedAt) VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`,
-      attrId,
-      id,
-      name.trim(),
-      JSON.stringify(values.map((v: string) => String(v).trim()))
-    );
-    const attrs = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      productId: string;
-      name: string;
-      values: string;
-    }>>(
-      'SELECT id, productId, name, "values" FROM ProductAttribute WHERE id = ?',
-      attrId
-    );
+    const attribute = await prisma.productAttribute.create({
+      data: {
+        productId: id,
+        name: name.trim(),
+        values: JSON.stringify(values.map((v: string) => String(v).trim())),
+        displayType: displayType === "swatch" || displayType === "image" ? displayType : "button",
+        displayData: displayData && typeof displayData === "object" ? JSON.stringify(displayData) : null,
+      },
+    });
     return NextResponse.json({
-      ...attrs[0],
-      values: JSON.parse(attrs[0].values),
+      id: attribute.id,
+      productId: attribute.productId,
+      name: attribute.name,
+      values: JSON.parse(attribute.values) as string[],
+      displayType: attribute.displayType ?? "button",
+      displayData: attribute.displayData ? (JSON.parse(attribute.displayData) as Record<string, string>) : undefined,
     });
   } catch (e) {
     console.error("[Admin] Attribute create error:", e);

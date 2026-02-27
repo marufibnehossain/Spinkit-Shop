@@ -1,13 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-
-function formatEUR(cents: number) {
-  return new Intl.NumberFormat("en-IE", {
-    style: "currency",
-    currency: "EUR",
-  }).format(cents / 100);
-}
+import FormatPrice from "@/components/FormatPrice";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-GB", {
@@ -163,7 +157,9 @@ export default async function CheckoutSuccessPage(props: PageProps) {
                         <td className="py-4">{String(item.quantity).padStart(2, "0")}</td>
                         <td className="py-4">{sku}</td>
                         <td className="py-4">{formatDate(createdAt)}</td>
-                        <td className="py-4 text-right">€ {(item.priceCents * item.quantity / 100).toFixed(2)}</td>
+                        <td className="py-4 text-right">
+                          <FormatPrice price={(item.priceCents * item.quantity) / 100} />
+                        </td>
                       </tr>
                     );
                   })}
@@ -193,19 +189,19 @@ export default async function CheckoutSuccessPage(props: PageProps) {
                 <div className="space-y-2 text-right min-w-[140px]">
                   <div className="flex justify-between gap-6">
                     <span>Sub Total:</span>
-                    <span>{formatEUR(subtotal)}</span>
+                    <span><FormatPrice price={subtotal / 100} /></span>
                   </div>
                   <div className="flex justify-between gap-6">
                     <span>Discount:</span>
-                    <span>{formatEUR(discount)}</span>
+                    <span><FormatPrice price={discount / 100} /></span>
                   </div>
                   <div className="flex justify-between gap-6">
                     <span>Delivery Fee:</span>
-                    <span>{formatEUR(shipping)}</span>
+                    <span><FormatPrice price={shipping / 100} /></span>
                   </div>
                   <div className="flex justify-between gap-6 font-bold pt-2 border-t border-[#e5e5e5] mt-2">
                     <span>Total:</span>
-                    <span>{formatEUR(total)}</span>
+                    <span><FormatPrice price={total / 100} /></span>
                   </div>
                 </div>
               </div>

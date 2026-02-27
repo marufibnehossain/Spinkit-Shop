@@ -13,26 +13,23 @@ export async function PATCH(req: Request) {
     if (!Array.isArray(ids) || ids.length === 0 || typeof action !== "string") {
       return NextResponse.json({ error: "ids array and action required" }, { status: 400 });
     }
-    const placeholders = ids.map(() => "?").join(",");
     if (action === "delete") {
-      for (const id of ids) {
-        await prisma.$executeRawUnsafe("DELETE FROM ProductAttribute WHERE productId = ?", id);
-        await prisma.$executeRawUnsafe("DELETE FROM ProductVariation WHERE productId = ?", id);
-        await prisma.$executeRawUnsafe("DELETE FROM Product WHERE id = ?", id);
-      }
+      await prisma.product.deleteMany({ where: { id: { in: ids } } });
       return NextResponse.json({ ok: true, updated: ids.length });
     }
     if (action === "stock" && typeof value === "number") {
       const stock = Math.max(0, Math.floor(value));
-      for (const id of ids) {
-        await prisma.$executeRawUnsafe("UPDATE Product SET stock = ?, updatedAt = datetime('now') WHERE id = ?", stock, id);
-      }
+      await prisma.product.updateMany({
+        where: { id: { in: ids } },
+        data: { stock },
+      });
       return NextResponse.json({ ok: true, updated: ids.length });
     }
     if (action === "category" && typeof value === "string" && value.trim()) {
-      for (const id of ids) {
-        await prisma.$executeRawUnsafe("UPDATE Product SET categoryId = ?, updatedAt = datetime('now') WHERE id = ?", value.trim(), id);
-      }
+      await prisma.product.updateMany({
+        where: { id: { in: ids } },
+        data: { categoryId: value.trim() },
+      });
       return NextResponse.json({ ok: true, updated: ids.length });
     }
     return NextResponse.json({ error: "Invalid action or value" }, { status: 400 });

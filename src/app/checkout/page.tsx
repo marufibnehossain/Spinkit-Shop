@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCartStore } from "@/lib/cart-store";
+import { useCurrencyStore } from "@/lib/currency-store";
 
 type PaymentMethod = "card" | "cod";
 
@@ -66,6 +67,8 @@ function saveCheckoutToStorage(data: CheckoutSaved) {
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  useCurrencyStore((s) => s.currency);
+  const formatPrice = useCurrencyStore((s) => s.formatPrice);
 
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
@@ -453,8 +456,8 @@ export default function CheckoutPage() {
                     className="w-4 h-4 text-[#D0F198] focus:ring-[#D0F198]"
                   />
                   <span className="font-sans text-sm text-[#2A2B2A]">Pay with Card</span>
-                  <span className="flex items-center gap-1 ml-2 text-xs text-[#6b7280]">
-                    MasterCard · VISA · G Pay · Pay
+                  <span className="flex items-center gap-1 ml-2">
+                    <Image src="/images/payments.svg" alt="MasterCard, VISA, Google Pay, Apple Pay" width={80} height={20} className="h-5 w-auto" />
                   </span>
                 </label>
               </div>
@@ -604,7 +607,7 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <p className="font-sans text-sm font-bold text-[#2A2B2A] shrink-0 text-right">
-                      € {item.price.toFixed(2)} EUR
+                      {formatPrice(item.price)}
                       {item.quantity > 1 && ` × ${item.quantity}`}
                     </p>
                   </li>
@@ -648,19 +651,19 @@ export default function CheckoutPage() {
               <div className="space-y-2 font-sans text-sm pt-2 border-t border-[#e5e5e5]">
                 <div className="flex justify-between text-[#2A2B2A]">
                   <span>Sub Total</span>
-                  <span className="text-right">€{subtotal.toFixed(2)}</span>
+                  <span className="text-right">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-[#2A2B2A]">
                   <span>Discount</span>
-                  <span className="text-right">€{discountAmount.toFixed(2)}</span>
+                  <span className="text-right">{formatPrice(discountAmount)}</span>
                 </div>
                 <div className="flex justify-between text-[#2A2B2A]">
                   <span>Delivery Fee</span>
-                  <span className="text-right">€{deliveryFee.toFixed(2)}</span>
+                  <span className="text-right">{formatPrice(deliveryFee)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-[#2A2B2A] pt-3 border-t border-[#e5e5e5]">
                   <span>Total</span>
-                  <span className="text-right">€{total.toFixed(2)}</span>
+                  <span className="text-right">{formatPrice(total)}</span>
                 </div>
               </div>
 

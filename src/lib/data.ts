@@ -1,7 +1,13 @@
+export type AttributeDisplayType = "button" | "swatch" | "image";
+
 export interface ProductAttribute {
   id: string;
   name: string;
   values: string[];
+  /** How to render: button (default), swatch (color dots), image (small round images) */
+  displayType?: AttributeDisplayType;
+  /** For swatch: { "Red": "#ff0000" }. For image: { "Red": "/url" } */
+  displayData?: Record<string, string>;
 }
 
 export interface ProductVariation {

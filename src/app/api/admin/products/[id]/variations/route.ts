@@ -12,23 +12,18 @@ export async function GET(
   }
   try {
     const { id } = await params;
-    const variations = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      productId: string;
-      attributes: string;
-      priceCents: number | null;
-      stock: number;
-      sku: string | null;
-      images: string | null;
-    }>>(
-      "SELECT id, productId, attributes, priceCents, stock, sku, images FROM ProductVariation WHERE productId = ? ORDER BY createdAt ASC",
-      id
-    );
-    return NextResponse.json(variations.map(v => ({
-      ...v,
-      attributes: JSON.parse(v.attributes),
+    const variations = await prisma.productVariation.findMany({
+      where: { productId: id },
+      orderBy: { createdAt: "asc" },
+    });
+    return NextResponse.json(variations.map((v) => ({
+      id: v.id,
+      productId: v.productId,
+      attributes: JSON.parse(v.attributes) as Record<string, string>,
       price: v.priceCents ? v.priceCents / 100 : null,
-      images: v.images ? JSON.parse(v.images) : null,
+      stock: v.stock,
+      sku: v.sku,
+      images: v.images ? (JSON.parse(v.images) as string[]) : null,
     })));
   } catch (e) {
     console.error("[Admin] Variations get error:", e);
@@ -51,35 +46,24 @@ export async function POST(
     if (!attributes || typeof attributes !== "object") {
       return NextResponse.json({ error: "Attributes object is required" }, { status: 400 });
     }
-    const varId = `var-${Date.now()}`;
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO ProductVariation (id, productId, attributes, priceCents, stock, sku, images, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
-      varId,
-      id,
-      JSON.stringify(attributes),
-      price != null ? Math.round(price * 100) : null,
-      Math.max(0, Math.floor(stock ?? 0)),
-      sku?.trim() || null,
-      images && Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null
-    );
-    const vars = await prisma.$queryRawUnsafe<Array<{
-      id: string;
-      productId: string;
-      attributes: string;
-      priceCents: number | null;
-      stock: number;
-      sku: string | null;
-      images: string | null;
-    }>>(
-      "SELECT id, productId, attributes, priceCents, stock, sku, images FROM ProductVariation WHERE id = ?",
-      varId
-    );
-    const v = vars[0];
+    const variation = await prisma.productVariation.create({
+      data: {
+        productId: id,
+        attributes: JSON.stringify(attributes),
+        priceCents: price != null ? Math.round(price * 100) : null,
+        stock: Math.max(0, Math.floor(stock ?? 0)),
+        sku: sku?.trim() || null,
+        images: images && Array.isArray(images) && images.length > 0 ? JSON.stringify(images) : null,
+      },
+    });
     return NextResponse.json({
-      ...v,
-      attributes: JSON.parse(v.attributes),
-      price: v.priceCents ? v.priceCents / 100 : null,
-      images: v.images ? JSON.parse(v.images) : null,
+      id: variation.id,
+      productId: variation.productId,
+      attributes: JSON.parse(variation.attributes) as Record<string, string>,
+      price: variation.priceCents ? variation.priceCents / 100 : null,
+      stock: variation.stock,
+      sku: variation.sku,
+      images: variation.images ? (JSON.parse(variation.images) as string[]) : null,
     });
   } catch (e) {
     console.error("[Admin] Variation create error:", e);

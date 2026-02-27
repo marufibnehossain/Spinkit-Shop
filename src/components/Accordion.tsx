@@ -42,7 +42,7 @@ interface AccordionProps {
 
 export default function Accordion({
   items,
-  defaultOpenIndex = 0,
+  defaultOpenIndex = -1,
   className = "",
 }: AccordionProps) {
   return (

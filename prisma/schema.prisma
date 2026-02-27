@@ -146,12 +146,14 @@ model Product {
 }
 
 model ProductAttribute {
-  id        String   @id @default(cuid())
-  productId String
-  name      String // e.g., "Size", "Color"
-  values    String // JSON array of possible values, e.g., ["Small", "Medium", "Large"]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  productId   String
+  name        String // e.g., "Size", "Color"
+  values      String // JSON array of possible values, e.g., ["Small", "Medium", "Large"]
+  displayType String   @default("button") // "button" | "swatch" | "image"
+  displayData String? // JSON: swatch = {"Red":"#ff0000"}, image = {"Red":"/url"}
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
