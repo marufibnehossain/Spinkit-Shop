@@ -26,10 +26,12 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
   const isNewArrivals = variant === "newArrivals";
   const isBestSellers = variant === "bestSellers";
 
+  const outOfStock = product.trackInventory !== false && product.stock <= 0;
+
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (product.stock <= 0) return;
+    if (outOfStock) return;
     addItem(
       {
         productId: product.id,
@@ -46,8 +48,6 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
       image: img,
     });
   }
-
-  const outOfStock = product.trackInventory !== false && product.stock <= 0;
 
   async function handleWishlist(e: React.MouseEvent) {
     e.preventDefault();
@@ -107,7 +107,9 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
                 <FormatPrice price={product.price} />
               </p>
             </div>
-            {!outOfStock && (
+            {outOfStock ? (
+              <span className="shrink-0 font-sans text-sm font-medium text-muted">Out of stock</span>
+            ) : (
               <button
                 type="button"
                 onClick={(e) => {
@@ -152,6 +154,9 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
             <p className="font-sans font-bold text-text text-base mt-0.5">
               <FormatPrice price={product.price} />
             </p>
+            {outOfStock && (
+              <p className="font-sans text-sm font-medium text-muted mt-1">Out of stock</p>
+            )}
           </div>
         </Link>
       </article>
@@ -204,8 +209,14 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
             className="object-contain object-center p-4"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
-          {/* Add to cart overlay – visible on hover */}
-          {!outOfStock && (
+          {/* Add to cart overlay – visible on hover; Out of stock when applicable */}
+          {outOfStock ? (
+            <div className="absolute inset-0 z-10 flex items-end p-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <span className="w-full rounded-lg border border-border bg-bg/90 px-5 py-2.5 font-sans text-sm font-medium text-muted text-center">
+                Out of stock
+              </span>
+            </div>
+          ) : (
             <div
               className="absolute inset-0 z-10 flex items-end p-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100 pointer-events-none"
               aria-hidden
