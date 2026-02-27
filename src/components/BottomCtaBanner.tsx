@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function BottomCtaBanner() {
   return (
     <section className="relative overflow-hidden">
-      <div className="relative w-full h-[550px]">
+      <div className="relative w-full min-h-[380px] md:h-[550px] flex items-center justify-center">
         <Image
           src="/images/bottom-banner.png"
           alt="Table tennis table top view"
@@ -13,8 +13,8 @@ export default function BottomCtaBanner() {
           priority={false}
         />
         <div className="absolute inset-0 bg-black/35" aria-hidden />
-        <div className="relative z-10 h-full w-[490px] flex flex-col items-center justify-center text-center px-4 mx-auto">
-          <h2 className="font-sans text-[40px] font-semibold text-[#D6FC45] mb-4">
+        <div className="relative z-10 h-full w-full lg:max-w-[490px] md:max-w-[420px] sm:max-w-[320px] max-w-[280px] flex flex-col items-center justify-center text-center px-4 mx-auto">
+          <h2 className="font-sans text-2xl sm:text-3xl md:text-[40px] font-semibold text-[#D6FC45] mb-4">
             READY TO ELEVATE YOUR GAME?
           </h2>
           <p className="font-sans text-sm md:text-base text-white/85 max-w-xl mb-6">
