@@ -54,8 +54,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex">
-      <aside className="w-56 shrink-0 border-r border-border bg-surface flex flex-col">
+    <div className="h-screen bg-bg flex overflow-hidden">
+      <aside className="w-56 shrink-0 h-screen border-r border-border bg-surface flex flex-col overflow-y-auto">
         <div className="p-4 border-b border-border">
           <Link href="/admin" className="font-sans text-lg font-semibold text-sage-dark uppercase tracking-wide">
             Spinkit Admin

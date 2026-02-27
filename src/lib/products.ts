@@ -20,6 +20,7 @@ function parseProduct(dbProduct: {
   ingredients: string | null;
   howToUse: string | null;
   stock: number;
+  trackInventory?: boolean;
 }): Product {
   return {
     id: dbProduct.id,
@@ -38,6 +39,7 @@ function parseProduct(dbProduct: {
     ingredients: dbProduct.ingredients ?? undefined,
     howToUse: dbProduct.howToUse ?? undefined,
     stock: dbProduct.stock,
+    trackInventory: dbProduct.trackInventory,
   };
 }
 
@@ -90,6 +92,7 @@ export async function getProducts(): Promise<Product[]> {
       ingredients: p.ingredients,
       howToUse: p.howToUse,
       stock: p.stock,
+      trackInventory: p.trackInventory,
     })
   );
 }
@@ -313,6 +316,7 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
       ingredients: p.ingredients,
       howToUse: p.howToUse,
       stock: p.stock,
+      trackInventory: p.trackInventory,
     })
   );
 }
@@ -374,6 +378,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
       ingredients: p.ingredients,
       howToUse: p.howToUse,
       stock: p.stock,
+      trackInventory: p.trackInventory,
     })
   );
 }
@@ -428,6 +433,7 @@ export async function getProductsBySlugs(slugs: string[]): Promise<Product[]> {
       ingredients: p.ingredients,
       howToUse: p.howToUse,
       stock: p.stock,
+      trackInventory: p.trackInventory,
     })
   );
 }

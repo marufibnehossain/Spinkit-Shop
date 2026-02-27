@@ -26,7 +26,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
   const isNewArrivals = variant === "newArrivals";
   const isBestSellers = variant === "bestSellers";
 
-  const outOfStock = product.trackInventory !== false && product.stock <= 0;
+  const outOfStock = product.trackInventory === true && product.stock <= 0;
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
@@ -104,7 +104,7 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
                 {product.name}
               </h3>
               <p className="font-sans text-base font-bold text-text mt-0.5">
-                <FormatPrice price={product.price} />
+                <FormatPrice price={product.price} compact />
               </p>
             </div>
             {outOfStock ? (
@@ -151,12 +151,14 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
               {product.name}
             </h3>
             <p className="font-sans text-sm text-muted mt-1">Starting at</p>
-            <p className="font-sans font-bold text-text text-base mt-0.5">
-              <FormatPrice price={product.price} />
-            </p>
-            {outOfStock && (
-              <p className="font-sans text-sm font-medium text-muted mt-1">Out of stock</p>
-            )}
+            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+              <span className="font-sans font-bold text-text text-base">
+                <FormatPrice price={product.price} compact />
+              </span>
+              {outOfStock && (
+                <span className="font-sans text-sm font-medium text-muted">Out of stock</span>
+              )}
+            </div>
           </div>
         </Link>
       </article>
@@ -248,11 +250,11 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
             <div className="mt-1 flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-baseline gap-2">
               <span className="font-sans text-base font-medium text-text">
-                <FormatPrice price={product.price} />
+                <FormatPrice price={product.price} compact />
               </span>
               {product.compareAt != null && (
                 <span className="font-sans text-sm text-muted line-through">
-                  <FormatPrice price={product.compareAt} />
+                  <FormatPrice price={product.compareAt} compact />
                 </span>
               )}
             </div>

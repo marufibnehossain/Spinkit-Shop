@@ -70,7 +70,7 @@ export default function WishlistPage() {
           if (res.ok) {
             const product = await res.json();
             const p = product as { stock?: number; trackInventory?: boolean };
-            stocks[item.slug] = p.trackInventory === false ? 999 : (p.stock ?? 0);
+            stocks[item.slug] = p.trackInventory !== true ? 999 : (p.stock ?? 0);
           }
         } catch (_) {}
       }

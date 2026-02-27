@@ -65,7 +65,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       price: product.price,
       priceCurrency: "EUR",
       availability:
-        product.trackInventory === false || product.stock > 0
+        product.trackInventory !== true || product.stock > 0
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
     },

@@ -24,7 +24,7 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
   const hasVariations = (product.attributes?.length ?? 0) > 0 && (product.variations?.length ?? 0) > 0;
   const mustSelectVariation = hasVariations && !selectedVariation;
   const currentPrice = selectedVariation?.price ?? product.price;
-  const unlimitedStock = product.trackInventory === false;
+  const unlimitedStock = product.trackInventory !== true;
   const variationStock = selectedVariation?.stock ?? 0;
   const isVariationUnlimited = variationStock >= UNLIMITED_STOCK;
   const effectiveUnlimited = unlimitedStock || (hasVariations && isVariationUnlimited);

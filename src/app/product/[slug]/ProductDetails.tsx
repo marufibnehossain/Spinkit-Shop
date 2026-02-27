@@ -71,7 +71,7 @@ export default function ProductDetails({
   }
 
   const currentPrice = selectedVariation?.price ?? product.price;
-  const unlimitedStock = product.trackInventory === false;
+  const unlimitedStock = product.trackInventory !== true;
   const currentStock = unlimitedStock ? 999 : (selectedVariation?.stock ?? product.stock);
 
   const accordionItems = [
