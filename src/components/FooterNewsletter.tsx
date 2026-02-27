@@ -7,11 +7,12 @@ export default function FooterNewsletter() {
   return (
     <div className="relative min-h-[260px] bg-black text-white overflow-hidden">
       <Image
-        src="/images/group-11.png"
+        src="/images/Group-11.png"
         alt="Subscribe to our newsletter"
         fill
         className="object-cover opacity-70"
-        priority={false}
+        sizes="(max-width: 768px) 100vw, 35vw"
+        priority
       />
       <div className="absolute inset-0 bg-black/40" aria-hidden />
       <div className="relative z-10 h-full w-full flex flex-col justify-center px-6 md:px-10 py-8 gap-4">

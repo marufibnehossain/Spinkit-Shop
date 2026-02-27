@@ -138,10 +138,10 @@ export default function SidebarFilters({ categories, priceRange, onApply }: Side
           aria-label="Price range"
         >
           <Slider.Track className="relative h-[4px] w-full rounded-full bg-[#e5e7eb]">
-            <Slider.Range className="absolute h-[4px] rounded-full bg-[#2563eb]" />
+            <Slider.Range className="absolute h-[4px] rounded-full bg-[#7546ff]" />
           </Slider.Track>
-          <Slider.Thumb className="block w-4 h-4 rounded-full border-2 border-[#2563eb] bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/40" />
-          <Slider.Thumb className="block w-4 h-4 rounded-full border-2 border-[#2563eb] bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/40" />
+          <Slider.Thumb className="block w-4 h-4 rounded-full border-2 border-[#7546ff] bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7546ff]/40" />
+          <Slider.Thumb className="block w-4 h-4 rounded-full border-2 border-[#7546ff] bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7546ff]/40" />
         </Slider.Root>
       </div>
     </aside>

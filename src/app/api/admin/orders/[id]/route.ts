@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
+import { sendOrderStatusEmail } from "@/lib/email";
 
 export async function GET(
   req: Request,
@@ -136,6 +137,22 @@ export async function PATCH(
       id
     );
     const order = orders[0];
+
+    // Send status email when status changed to PAID, SHIPPED, or CANCELLED
+    if (typeof status === "string" && ["PAID", "SHIPPED", "CANCELLED"].includes(status)) {
+      try {
+        await sendOrderStatusEmail(order.email, {
+          orderId: order.id,
+          name: order.name,
+          status,
+          trackingNumber: order.trackingNumber ?? undefined,
+          trackingCarrier: order.trackingCarrier ?? undefined,
+        });
+      } catch (_) {
+        // Email failure is non-fatal; order was updated successfully
+      }
+    }
+
     return NextResponse.json({
       ...order,
       createdAt: order.createdAt.toISOString?.() ?? order.createdAt,

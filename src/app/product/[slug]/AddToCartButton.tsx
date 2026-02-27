@@ -96,7 +96,12 @@ export default function AddToCartButton({ product, selectedVariation, selectedAt
             ? "Please select options"
             : outOfStock
               ? "Out of stock"
-              : `Add to Cart - ${formatPrice(currentPrice)}`}
+              : (
+                  <>
+                    Add to Cart
+                    <span className="hidden md:inline"> - {formatPrice(currentPrice)}</span>
+                  </>
+                )}
         </Button>
       )}
       {!hideStockLabel && (
