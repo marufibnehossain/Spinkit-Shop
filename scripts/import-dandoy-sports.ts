@@ -170,7 +170,7 @@ async function loadCategoryMap(rows: CsvRow[]): Promise<Map<string, string>> {
     const raw = row.category?.trim() || "Accessories";
     categoryPaths.add(raw);
   }
-  const sorted = [...categoryPaths].sort((a, b) => {
+  const sorted = Array.from(categoryPaths).sort((a, b) => {
     const aLen = parseCategoryPath(a).length;
     const bLen = parseCategoryPath(b).length;
     return aLen - bLen;
