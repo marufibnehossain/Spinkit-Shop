@@ -128,7 +128,7 @@ async function getOrCreateCategory(
       continue;
     }
 
-    const cat = await prisma.category.upsert({
+    const cat: { id: string } = await prisma.category.upsert({
       where: { slug },
       create: { name, slug, parentId },
       update: parentId !== null ? { parentId } : {},
@@ -155,7 +155,7 @@ async function loadCategoryMap(rows: CsvRow[]): Promise<Map<string, string>> {
     { name: "Accessories", slug: "accessories" },
   ];
   for (const c of baseCategories) {
-    const cat = await prisma.category.upsert({
+    const cat: { id: string } = await prisma.category.upsert({
       where: { slug: c.slug },
       create: { name: c.name, slug: c.slug },
       update: {},
