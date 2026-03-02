@@ -37,7 +37,7 @@ const tabs: { id: string; label: string; items: FAQItem[] }[] = [
     items: [
       {
         q: "Which payment methods do you accept?",
-        a: "We accept major credit and debit cards, Apple Pay, Google Pay, and other secure payment options shown at checkout.",
+        a: "We accept major credit and debit cards only.",
       },
       {
         q: "Can I change or cancel my order?",

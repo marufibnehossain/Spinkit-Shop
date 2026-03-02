@@ -42,7 +42,7 @@ export default function Footer() {
               <Link href="/" className="block w-[150px] hover:opacity-90 transition-opacity">
                 <Image
                   src="/images/spinkit-shop-logo.png"
-                  alt="Spinkit.Shop"
+                  alt="Spinkit Shop"
                   width={150}
                   height={36}
                   className="w-[150px] h-auto object-contain"
@@ -51,7 +51,7 @@ export default function Footer() {
               <div className="mt-4 font-sans text-sm text-white space-y-1">
                 <p>Address: Company Address, City name</p>
                 <p>Phone: +421 905 557</p>
-                <p>Email: spinkit.shop@gmail.com</p>
+                <p>Email: hello@spinkitshop.com</p>
               </div>
             </div>
             {/* Column 2: Quick links */}
@@ -114,7 +114,7 @@ export default function Footer() {
           <div className="border-t border-white/10 px-6 py-6 md:py-8 flex flex-col items-center gap-6">
             <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 text-center sm:text-left">
               <p className="font-sans text-sm text-white/80">
-                © Spinkit.Shop 2026 - All rights reserved. Excellent 4.7 out of 5
+                © Spinkit Shop 2026 - All rights reserved. Excellent 4.7 out of 5
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6" aria-label="Payment methods">

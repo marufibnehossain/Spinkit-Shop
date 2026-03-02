@@ -11,7 +11,7 @@ export default function AboutPage() {
         <div className="relative h-[400px] flex items-center">
           <Image
             src="/images/page-banner.png"
-            alt="About Spinkit.Shop"
+            alt="About Spinkit Shop"
             fill
             priority
             className="object-cover object-center"

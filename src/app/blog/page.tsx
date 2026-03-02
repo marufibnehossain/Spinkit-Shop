@@ -63,7 +63,7 @@ export default async function BlogPage(props: PageProps) {
         <div className="relative h-[400px] flex items-center">
           <Image
             src="/images/page-banner.png"
-            alt="Blog - Spinkit.Shop"
+            alt="Blog - Spinkit Shop"
             fill
             priority
             className="object-cover object-center"

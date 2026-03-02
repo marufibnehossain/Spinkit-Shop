@@ -217,7 +217,7 @@ export async function sendContactNotificationEmail(options: {
   email: string;
   message: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  const to = process.env.CONTACT_EMAIL ?? "spinkit.shop@gmail.com";
+  const to = process.env.CONTACT_EMAIL ?? "hello@spinkitshop.com";
   if (!useSmtp && !resend) {
     console.log("[Contact] No email config – notification skipped to:", to);
     return { ok: true };
