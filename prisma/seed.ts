@@ -340,7 +340,8 @@ async function main() {
 <h2>Practice Drills</h2>
 <p>Start with multiball: have a partner feed backspin to your forehand. Focus on brushing the ball, not hitting it. Gradually increase speed. Then practice against topspin—loop from your backhand and forehand. Consistency comes before power.</p>
 
-<p>With patience and correct technique, your topspin will become a weapon that forces errors and opens up opportunities.</p>`,
+<h2>Final Tips</h2>
+<p>Focus on brushing the ball, not hitting it. Start with a slower, spinier loop before adding power. And remember: the best topspin is the one you can control consistently.</p>`,
         image: "/images/our-story.png",
         authorName: "Coach Zhang",
         categoryId: blogCatIds[4],
@@ -410,7 +411,8 @@ async function main() {
 <h2>10. Match Simulation</h2>
 <p>Play best-of-5 sets with a partner. Focus on one specific tactic (e.g. serve to forehand, attack third ball). Practice under pressure.</p>
 
-<p>Consistency comes from repetition. Do these drills regularly and you'll see your game improve.</p>`,
+<h2>Final Tips</h2>
+<p>Start with drills you can complete consistently, then gradually increase difficulty. Ask a coach for feedback if possible. And remember: the best training is the one you do regularly.</p>`,
         image: "/images/person-image.png",
         authorName: "Coach Zhang",
         categoryId: blogCatIds[3],
