@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useCartStore } from "@/lib/cart-store";
 import { useWishlistStore } from "@/lib/wishlist-store";
@@ -413,13 +414,15 @@ export default function Header({ variant = "solid" }: HeaderProps) {
       <div className="mx-auto max-w-[1315px] px-4 md:px-6">
         <div className="flex h-14 md:h-16 items-center justify-between gap-4">
           {/* Left: logo */}
-          <Link
-            href="/"
-            className={`font-sans text-lg md:text-xl font-semibold tracking-tight shrink-0 ${
-              isTransparent ? "text-white hover:text-white/90" : "text-text hover:text-muted"
-            }`}
-          >
-            Spinkit.Shop
+          <Link href="/" className="shrink-0 hover:opacity-90 transition-opacity">
+            <Image
+              src={isTransparent ? "/images/spinkit-shop-logo.png" : "/images/spinkit-shop-Lemon.png"}
+              alt="Spinkit.Shop"
+              width={150}
+              height={36}
+              className="w-[150px] h-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* Center: desktop nav */}

@@ -39,11 +39,14 @@ export default function Footer() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-6 py-10 md:py-12 lg:px-10 lg:py-14 flex-1">
             {/* Column 1: Brand + contact */}
             <div>
-              <Link
-                href="/"
-                className="font-sans text-xl md:text-2xl font-bold text-[#D6FC45]"
-              >
-                Spinkit.Shop
+              <Link href="/" className="block w-[150px] hover:opacity-90 transition-opacity">
+                <Image
+                  src="/images/spinkit-shop-logo.png"
+                  alt="Spinkit.Shop"
+                  width={150}
+                  height={36}
+                  className="w-[150px] h-auto object-contain"
+                />
               </Link>
               <div className="mt-4 font-sans text-sm text-white space-y-1">
                 <p>Address: Company Address, City name</p>
