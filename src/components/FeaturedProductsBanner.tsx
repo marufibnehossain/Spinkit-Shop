@@ -9,7 +9,7 @@ interface FeaturedProductsBannerProps {
   products: Product[];
 }
 
-const BG_IMAGE = "/images/featured-product.png";
+const BG_IMAGE = "/images/featured-product.jpg";
 
 export default function FeaturedProductsBanner({ products }: FeaturedProductsBannerProps) {
   const [product1, product2] = products.slice(0, 2);
@@ -33,7 +33,7 @@ export default function FeaturedProductsBanner({ products }: FeaturedProductsBan
         <div className="absolute inset-0 bg-black/20" aria-hidden />
       </div>
 
-      {/* Overlaid lime product cards — lower right, full width */}
+      {/* Overlaid lime product cards — lower right */}
       <div className="relative z-10 w-full px-4 md:px-6 flex flex-col items-end justify-end min-h-[420px] md:min-h-[500px] pb-8 md:pb-12">
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg sm:max-w-none sm:w-auto sm:ml-auto">
           {product1 && (
@@ -64,7 +64,7 @@ export default function FeaturedProductsBanner({ products }: FeaturedProductsBan
           {product2 && (
             <Link
               href={`/product/${product2.slug}`}
-              className="flex items-end gap-4 bg-[#CFFF40] p-3 rounded-none w-full sm:w-[280px] shrink-0 hover:opacity-95 transition-opacity"
+              className="hidden sm:flex items-end gap-4 bg-[#CFFF40] p-3 rounded-none w-full sm:w-[280px] shrink-0 hover:opacity-95 transition-opacity"
             >
               <div className="relative w-20 h-20 shrink-0 bg-white/60 overflow-hidden rounded-none">
                 <Image
