@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendContactNotificationEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -14,15 +15,17 @@ export async function POST(req: Request) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
     }
-    const id = `cnt-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    await prisma.$executeRawUnsafe(
-      "INSERT INTO ContactMessage (id, name, email, subject, message, createdAt) VALUES (?, ?, ?, ?, ?, datetime('now'))",
-      id,
-      name,
-      email,
-      subject,
-      message
-    );
+
+    await prisma.contactMessage.create({
+      data: { name, email, subject, message },
+    });
+
+    try {
+      await sendContactNotificationEmail({ name, email, message });
+    } catch (_) {
+      // Email failure is non-fatal; message is saved
+    }
+
     return NextResponse.json({ ok: true, message: "Message sent. We'll get back to you soon." });
   } catch (e) {
     console.error("[Contact] Submit error:", e);

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import SearchableCountrySelect from "@/components/SearchableCountrySelect";
 
 const contactCards = [
   {
@@ -206,22 +207,18 @@ export default function ContactPage() {
                   <label className="block font-sans text-sm font-medium text-[#111827] mb-1">
                     Phone Number
                   </label>
-                  <div className="flex gap-3">
-                    <select
-                      value={phoneCountry}
-                      onChange={(e) => setPhoneCountry(e.target.value)}
-                      className="border border-[#2A2B2A99] bg-transparent rounded-lg px-4 py-3 font-sans text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#CFFF40] focus:border-transparent"
-                    >
-                      <option value="+44">+44</option>
-                      <option value="+1">+1</option>
-                      <option value="+49">+49</option>
-                      <option value="+33">+33</option>
-                    </select>
+                  <div className="flex rounded-lg border border-[#2A2B2A99] focus-within:ring-2 focus-within:ring-[#CFFF40] focus-within:ring-offset-0 focus-within:border-transparent">
+                    <div className="border-r border-[#2A2B2A99] rounded-l-lg shrink-0">
+                      <SearchableCountrySelect
+                        value={phoneCountry}
+                        onChange={setPhoneCountry}
+                      />
+                    </div>
                     <input
                       type="tel"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="flex-1 border border-[#2A2B2A99] bg-transparent rounded-lg px-4 py-3 font-sans text-sm text-[#111827] placeholder:text-[#2A2B2A99] focus:outline-none focus:ring-2 focus:ring-[#CFFF40] focus:border-transparent"
+                      className="flex-1 min-w-0 border-0 bg-transparent rounded-r-lg rounded-l-none px-4 py-3 font-sans text-sm text-[#111827] placeholder:text-[#2A2B2A99] focus:outline-none focus:ring-0"
                       placeholder="000 0000 000"
                     />
                   </div>

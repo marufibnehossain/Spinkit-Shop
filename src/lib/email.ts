@@ -211,3 +211,27 @@ export async function sendOrderStatusEmail(
 
   return sendEmail(to, subject, body);
 }
+
+export async function sendContactNotificationEmail(options: {
+  name: string;
+  email: string;
+  message: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const to = process.env.CONTACT_EMAIL ?? "spinkit.shop@gmail.com";
+  if (!useSmtp && !resend) {
+    console.log("[Contact] No email config – notification skipped to:", to);
+    return { ok: true };
+  }
+  const { name, email, message } = options;
+  const escapedMessage = message.replace(/\n/g, "<br>");
+  return sendEmail(
+    to,
+    `New contact form: ${name}`,
+    `
+    <p><strong>From:</strong> ${name} &lt;${email}&gt;</p>
+    <p><strong>Message:</strong></p>
+    <p>${escapedMessage}</p>
+    <p>— Spinkit Shop Contact Form</p>
+  `
+  );
+}
