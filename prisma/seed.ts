@@ -323,7 +323,24 @@ async function main() {
         slug: "master-the-art-of-topspin",
         title: "Master the Art of Topspin: A Complete Guide",
         excerpt: "Learn how to generate more spin on your loops and serves with proper technique and equipment choices.",
-        body: "Topspin is one of the most effective weapons in table tennis. This guide covers grip, stroke mechanics, and rubber selection.",
+        body: `<p>Topspin is one of the most effective weapons in table tennis. Whether you're looping from mid-distance or attacking a short ball, the ability to generate heavy spin separates good players from great ones. This guide covers everything from grip and stance to stroke mechanics and rubber selection.</p>
+
+<h2>Grip and Stance</h2>
+<p>Before you can produce topspin, you need a solid foundation. The shakehand grip is the most common for generating spin because it allows full wrist extension and forearm pronation. Hold the racket loosely—tightening your grip will kill spin. Your stance should be slightly crouched with knees bent, weight on the balls of your feet, and ready to move in any direction.</p>
+
+<h2>Stroke Mechanics</h2>
+<p>The key to topspin is brushing the ball rather than hitting through it. Start with your racket below the ball, then accelerate upward and forward in a smooth arc. The contact point should be in front of your body, and you should brush the top-back of the ball with a closed racket angle (around 45–60 degrees). Follow through toward your shoulder.</p>
+
+<h2>Loop vs. Drive</h2>
+<p>A <strong>loop</strong> uses more spin and arc—ideal for opening against backspin or attacking from mid-distance. A <strong>drive</strong> or <strong>counter-hit</strong> uses more speed and less spin—ideal for returning fast balls. Practice both: loops for heavy spin, drives for quick exchanges.</p>
+
+<h2>Rubber Selection</h2>
+<p>Tensor and spring sponge rubbers are designed for spin. Choose a rubber with a high spin rating if your technique is sound. For beginners, a slightly tacky or medium-spin rubber helps develop feel without sacrificing control. Thicker sponge (2.0mm+) gives more spin potential but requires better technique.</p>
+
+<h2>Practice Drills</h2>
+<p>Start with multiball: have a partner feed backspin to your forehand. Focus on brushing the ball, not hitting it. Gradually increase speed. Then practice against topspin—loop from your backhand and forehand. Consistency comes before power.</p>
+
+<p>With patience and correct technique, your topspin will become a weapon that forces errors and opens up opportunities.</p>`,
         image: "/images/our-story.png",
         authorName: "Coach Zhang",
         categoryId: blogCatIds[4],
@@ -333,7 +350,25 @@ async function main() {
         slug: "how-to-choose-your-first-table-tennis-racket",
         title: "How to Choose Your First Table Tennis Racket",
         excerpt: "A beginner-friendly guide to selecting the right blade and rubbers for your playing style and budget.",
-        body: "Choosing your first racket can feel overwhelming. We break down blade speed, rubber thickness, and control vs. spin.",
+        body: `<p>Choosing your first table tennis racket can feel overwhelming. With hundreds of blades and rubbers on the market, where do you start? This guide breaks down the basics so you can make an informed decision.</p>
+
+<h2>Blade Speed and Control</h2>
+<p>Blades are rated by speed (OFF, OFF-, ALL, ALL-, DEF) and control. Beginners should start with an <strong>ALL</strong> or <strong>ALL-</strong> blade—balanced speed and control. As you improve, you can move to faster blades (OFF-, OFF) for more attacking power.</p>
+
+<h2>Wood vs. Carbon</h2>
+<p>All-wood blades offer more feel and control. Carbon blades are faster and stiffer. For your first racket, an all-wood or soft composite blade is usually best. You'll develop better touch and timing.</p>
+
+<h2>Rubber Thickness</h2>
+<p>Sponge thickness affects speed and spin. <strong>1.5–1.8mm</strong> is ideal for beginners—more control, less speed. <strong>2.0mm</strong> is a good middle ground. <strong>2.1mm+</strong> (max) is for advanced players who can generate their own power.</p>
+
+<h2>Control vs. Spin</h2>
+<p>Rubbers are often categorized as control-oriented or spin-oriented. Control rubbers are easier to use and forgive mistakes. Spin rubbers require better technique but reward you with more spin. Start with control.</p>
+
+<h2>Budget</h2>
+<p>You don't need to spend a fortune. A good beginner setup is a blade around €30–50 and two rubbers at €15–25 each. Pre-assembled rackets are fine for casual play, but a custom setup gives you room to grow.</p>
+
+<h2>Final Tips</h2>
+<p>Try before you buy if possible. Ask club players or coaches for recommendations. And remember: the best racket is the one that feels right in your hand and lets you develop your game.</p>`,
         image: "/images/about.png",
         authorName: "Coach Zhang",
         categoryId: blogCatIds[1],
@@ -343,7 +378,39 @@ async function main() {
         slug: "top-10-training-drills-for-club-players",
         title: "Top 10 Training Drills for Club Players",
         excerpt: "Effective drills you can do with a partner or robot to improve consistency, footwork, and match readiness.",
-        body: "From multi-ball to shadow play, these ten drills will help club players develop faster and play with more confidence.",
+        body: `<p>Structured practice is the fastest way to improve. These ten drills are designed for club players who want to build consistency, footwork, and match readiness—whether you train with a partner or a robot.</p>
+
+<h2>1. Forehand–Backhand Counter</h2>
+<p>Partner feeds to your forehand, you counter to their backhand. They return to your backhand, you counter to their forehand. Focus on consistency and rhythm. Aim for 20+ balls without error.</p>
+
+<h2>2. Two-Ball Forehand</h2>
+<p>Partner feeds two balls to your forehand: one to the left, one to the right. Move, hit, recover. Repeat. This builds footwork and recovery.</p>
+
+<h2>3. Backhand Block, Forehand Loop</h2>
+<p>Partner feeds topspin to your backhand. You block. They return to your forehand. You loop. Repeat. This simulates a common match pattern.</p>
+
+<h2>4. Short Serve, Receive, Loop</h2>
+<p>Partner serves short backspin. You push or flip. They push long. You loop. Full sequence from serve to attack.</p>
+
+<h2>5. Multiball Forehand Loop</h2>
+<p>Partner feeds backspin to your forehand. You loop. Repeat 20–30 times. Focus on consistency and spin, not power.</p>
+
+<h2>6. Shadow Play</h2>
+<p>No ball. Practice footwork patterns: side-to-side, in-and-out. Move as if you're playing. Great for conditioning and muscle memory.</p>
+
+<h2>7. Serve and Third Ball</h2>
+<p>You serve. Partner receives. You attack the third ball. Repeat. Vary your serves and placement.</p>
+
+<h2>8. Random Placement</h2>
+<p>Partner feeds to random positions on the table. You move and play every ball. This simulates match unpredictability.</p>
+
+<h2>9. First Ball Attack</h2>
+<p>Partner serves. You attack immediately (flip or loop). No second chances. Builds aggressive receiving.</p>
+
+<h2>10. Match Simulation</h2>
+<p>Play best-of-5 sets with a partner. Focus on one specific tactic (e.g. serve to forehand, attack third ball). Practice under pressure.</p>
+
+<p>Consistency comes from repetition. Do these drills regularly and you'll see your game improve.</p>`,
         image: "/images/person-image.png",
         authorName: "Coach Zhang",
         categoryId: blogCatIds[3],
@@ -353,7 +420,7 @@ async function main() {
     for (const p of samplePosts) {
       await prisma.blogPost.upsert({
         where: { slug: p.slug },
-        update: {},
+        update: { body: p.body } as any,
         create: {
           ...p,
           body: p.body,

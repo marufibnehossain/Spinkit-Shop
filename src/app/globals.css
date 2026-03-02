@@ -66,3 +66,25 @@
   border: 2px solid #2563eb;
   background: #ffffff;
 }
+
+/* Blog post body content */
+.blog-body h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #111827;
+}
+.blog-body h2:first-child {
+  margin-top: 0;
+}
+.blog-body p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.blog-body p:last-child {
+  margin-bottom: 0;
+}
+.blog-body strong {
+  font-weight: 600;
+}

@@ -52,12 +52,9 @@ export default async function BlogPostPage(props: PageProps) {
           {post.title}
         </h1>
         <p className="mt-2 font-sans text-sm text-[#6B7280]">By {post.authorName}</p>
-        <div className="mt-8 font-sans text-[#4B5563] leading-relaxed prose prose-sage max-w-none">
+        <div className="mt-8 font-sans text-[#4B5563] leading-relaxed max-w-none">
           {post.body ? (
-            <div
-              className="whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: post.body }}
-            />
+            <div className="blog-body" dangerouslySetInnerHTML={{ __html: post.body }} />
           ) : (
             <p>{post.excerpt}</p>
           )}
