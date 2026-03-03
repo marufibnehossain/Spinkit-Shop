@@ -416,7 +416,7 @@ export default function Header({ variant = "solid" }: HeaderProps) {
           {/* Left: logo */}
           <Link href="/" className="shrink-0 hover:opacity-90 transition-opacity">
             <Image
-              src={isTransparent ? "/images/spinkit-shop-logo.png" : "/images/spinkit-shop-Lemon.png"}
+              src={isTransparent ? "/images/spinkit-shop-logo.png" : "/images/Logo-Black.png"}
               alt="Spinkit Shop"
               width={150}
               height={36}
