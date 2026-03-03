@@ -466,3 +466,39 @@ export async function getCategories(): Promise<Category[]> {
     parentId: c.parentId ?? null,
   }));
 }
+
+export type CategoryWithChildren = Category & { children: CategoryWithChildren[] };
+
+/** Build a tree of categories (parents with nested children) */
+export function buildCategoryTree(categories: Category[]): CategoryWithChildren[] {
+  const byParentId = new Map<string | null, Category[]>();
+  for (const c of categories) {
+    const key = c.parentId ?? null;
+    if (!byParentId.has(key)) byParentId.set(key, []);
+    byParentId.get(key)!.push(c);
+  }
+  function addChildren(cat: Category): CategoryWithChildren {
+    const children = (byParentId.get(cat.id) ?? [])
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(addChildren);
+    return { ...cat, children };
+  }
+  const roots = (byParentId.get(null) ?? []).sort((a, b) => a.name.localeCompare(b.name));
+  return roots.map(addChildren);
+}
+
+/** Get all slugs in a subtree (self + descendants) for filtering */
+function collectSlugsInSubtree(node: CategoryWithChildren): string[] {
+  return [node.slug, ...node.children.flatMap(collectSlugsInSubtree)];
+}
+
+/** Build a map: category slug -> all slugs to match when filtering (self + descendants) */
+export function buildCategorySlugMap(tree: CategoryWithChildren[]): Map<string, string[]> {
+  const map = new Map<string, string[]>();
+  function walk(node: CategoryWithChildren) {
+    map.set(node.slug, collectSlugsInSubtree(node));
+    node.children.forEach(walk);
+  }
+  tree.forEach(walk);
+  return map;
+}

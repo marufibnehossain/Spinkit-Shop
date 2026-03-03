@@ -102,16 +102,17 @@ export default async function CheckoutSuccessPage(props: PageProps) {
               >
                 <span aria-hidden>←</span> Back to Shop
               </Link>
-              <button
-                type="button"
+              <a
+                href={`/api/order/${orderId}/receipt`}
+                download={`receipt-${orderId.slice(-8)}.pdf`}
                 className="inline-flex items-center justify-center gap-2 rounded-none bg-[#D0F198] text-[#2A2B2A] px-6 py-3 font-sans text-sm font-medium hover:opacity-90"
-                aria-label="Download receipt (coming soon)"
+                aria-label="Download receipt"
               >
                 Download Receipt
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
 

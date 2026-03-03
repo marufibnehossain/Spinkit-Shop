@@ -27,7 +27,7 @@ const latoFont = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Spinkit Shop — Table Tennis Equipment",
+  title: "Spinkit — Table Tennis Equipment",
   description: "Play Better. Play Stronger. Play Smarter.",
   icons: {
     icon: "/images/fav-icon.png",

@@ -7,7 +7,7 @@ export default function RefundPolicyPage() {
             Refund &amp; Returns Policy
           </h1>
           <p className="font-sans text-sm md:text-base text-[#4B5563] leading-relaxed max-w-3xl mb-8">
-            We want you to be completely satisfied with your purchase from Spinkit Shop. This policy explains when and how you can return items, request a refund, or exchange products.
+            We want you to be completely satisfied with your purchase from Spinkit. This policy explains when and how you can return items, request a refund, or exchange products.
           </p>
 
           <div className="space-y-8 font-sans text-sm md:text-base text-[#374151] leading-relaxed max-w-3xl">
@@ -84,7 +84,7 @@ export default function RefundPolicyPage() {
                 Send your package to:
               </p>
               <p className="mt-2 font-medium">
-                Spinkit Shop<br />
+                Spinkit<br />
                 Return service<br />
                 Company Address, City name
               </p>

@@ -105,7 +105,7 @@ export default function ContactPage() {
         <div className="relative h-[320px] md:h-[380px] flex items-center">
           <Image
             src="/images/page-banner.png"
-            alt="Contact Spinkit Shop"
+            alt="Contact Spinkit"
             fill
             priority
             className="object-cover object-center"

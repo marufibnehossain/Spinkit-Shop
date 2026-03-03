@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import SidebarFilters from "./SidebarFilters";
+import type { CategoryWithChildren } from "@/lib/products";
 
 interface FiltersOffCanvasProps {
-  categories: { id: string; name: string; slug?: string }[];
+  categoryTree: CategoryWithChildren[];
   priceRange: { min: number; max: number };
 }
 
-export default function FiltersOffCanvas({ categories, priceRange }: FiltersOffCanvasProps) {
+export default function FiltersOffCanvas({ categoryTree, priceRange }: FiltersOffCanvasProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function FiltersOffCanvas({ categories, priceRange }: FiltersOffC
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6">
-            <SidebarFilters categories={categories} priceRange={priceRange} onApply={() => setOpen(false)} />
+            <SidebarFilters categoryTree={categoryTree} priceRange={priceRange} onApply={() => setOpen(false)} />
           </div>
         </aside>
       </div>

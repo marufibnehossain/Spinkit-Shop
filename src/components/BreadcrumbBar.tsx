@@ -38,27 +38,39 @@ export default function BreadcrumbBar() {
             <span>Home</span>
           </Link>
           <span className="mx-1">/</span>
-          {pathname === "/products" ? (
+          {pathname === "/products" && !breadcrumbLabel ? (
             <span className="text-text">Shop</span>
-          ) : (
-            <Link href="/products" className="hover:text-text">
-              Shop
-            </Link>
-          )}
-          {!pathname.startsWith("/products") && <span className="mx-1">/</span>}
-          {pathname !== "/products" && (isSingleBlogPost && breadcrumbLabel ? (
+          ) : pathname === "/products" && breadcrumbLabel ? (
             <>
-              <Link href="/blog" className="hover:text-text">
-                Blogs
+              <Link href="/products" className="hover:text-text">
+                Shop
               </Link>
               <span className="mx-1">/</span>
               <span className="text-text truncate max-w-[200px] md:max-w-none" title={breadcrumbLabel}>
                 {breadcrumbLabel}
               </span>
             </>
-          ) : (
-            <span className="text-text">{label}</span>
-          ))}
+          ) : pathname !== "/products" ? (
+            <>
+              <Link href="/products" className="hover:text-text">
+                Shop
+              </Link>
+              <span className="mx-1">/</span>
+              {isSingleBlogPost && breadcrumbLabel ? (
+                <>
+                  <Link href="/blog" className="hover:text-text">
+                    Blogs
+                  </Link>
+                  <span className="mx-1">/</span>
+                  <span className="text-text truncate max-w-[200px] md:max-w-none" title={breadcrumbLabel}>
+                    {breadcrumbLabel}
+                  </span>
+                </>
+              ) : (
+                <span className="text-text">{label}</span>
+              )}
+            </>
+          ) : null}
         </div>
       </div>
     </nav>

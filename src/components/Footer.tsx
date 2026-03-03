@@ -39,13 +39,13 @@ export default function Footer() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-6 py-10 md:py-12 lg:px-10 lg:py-14 flex-1">
             {/* Column 1: Brand + contact */}
             <div>
-              <Link href="/" className="block w-[150px] hover:opacity-90 transition-opacity">
+              <Link href="/" className="block w-[130px] hover:opacity-90 transition-opacity">
                 <Image
                   src="/images/spinkit-shop-logo.png"
-                  alt="Spinkit Shop"
-                  width={150}
+                  alt="Spinkit"
+                  width={130}
                   height={36}
-                  className="w-[150px] h-auto object-contain"
+                  className="w-[130px] h-auto object-contain"
                 />
               </Link>
               <div className="mt-4 font-sans text-sm text-white space-y-1">
@@ -114,7 +114,7 @@ export default function Footer() {
           <div className="border-t border-white/10 px-6 py-6 md:py-8 flex flex-col items-center gap-6">
             <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 text-center sm:text-left">
               <p className="font-sans text-sm text-white/80">
-                © Spinkit Shop 2026 - All rights reserved. Excellent 4.7 out of 5
+                © Spinkit 2026 - All rights reserved. Excellent 4.7 out of 5
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6" aria-label="Payment methods">

@@ -14,7 +14,7 @@ export default function TermsPage() {
             <section>
               <h2 className="font-sans text-xl font-semibold text-[#111827] mb-3">1. Object</h2>
               <p>
-                These general conditions define the rights and obligations of Spinkit Shop and users in the context of online sales of products offered on our website. The sale can be concluded in the language chosen by the buyer.
+                These general conditions define the rights and obligations of Spinkit and users in the context of online sales of products offered on our website. The sale can be concluded in the language chosen by the buyer.
               </p>
             </section>
 
@@ -50,7 +50,7 @@ export default function TermsPage() {
                 Delivery times are usually 3 working days from the day after the package is processed. If the order cannot be processed within 30 working days from confirmation, you have the right to cancel the purchase.
               </p>
               <p>
-                Products will be delivered to the address indicated on the order. Products remain the property of Spinkit Shop until full payment, including shipping fees, has been received.
+                Products will be delivered to the address indicated on the order. Products remain the property of Spinkit until full payment, including shipping fees, has been received.
               </p>
             </section>
 
@@ -101,7 +101,7 @@ export default function TermsPage() {
             <section>
               <h2 className="font-sans text-xl font-semibold text-[#111827] mb-3">10. Applicable law</h2>
               <p>
-                These Terms and Conditions and the contractual relationship between Spinkit Shop and the buyer are subject to applicable law. Any dispute shall be settled in accordance with the jurisdiction of the competent courts.
+                These Terms and Conditions and the contractual relationship between Spinkit and the buyer are subject to applicable law. Any dispute shall be settled in accordance with the jurisdiction of the competent courts.
               </p>
             </section>
 

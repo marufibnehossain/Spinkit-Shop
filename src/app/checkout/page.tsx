@@ -576,7 +576,7 @@ export default function CheckoutPage() {
           </form>
 
           {/* Order Summary card */}
-          <aside className="lg:col-span-5 min-w-0 overflow-hidden">
+          <aside className="lg:col-span-5 min-w-0 overflow-hidden lg:self-start">
             <div className="lg:sticky lg:top-24 bg-white rounded-lg p-4 sm:p-6 md:p-8 space-y-5 shadow-sm min-w-0">
               <h2 className="font-sans text-xl sm:text-2xl font-bold text-[#2A2B2A]">
                 Order Summary

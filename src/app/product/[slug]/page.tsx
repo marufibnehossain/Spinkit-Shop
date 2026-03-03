@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   if (!product) {
     return { title: "Product not found" };
   }
-  const title = `${product.name} | Spinkit Shop`;
+  const title = `${product.name} | Spinkit`;
   const description = product.shortDesc.slice(0, 160);
   const image = product.images[0] ? (product.images[0].startsWith("http") ? product.images[0] : undefined) : undefined;
   return {

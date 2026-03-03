@@ -118,17 +118,17 @@ export default function WishlistPage() {
             const outOfStock = stock !== null && stock <= 0;
             return (
             <article key={item.productId} className="group border border-border rounded-lg bg-surface overflow-hidden">
-              <Link href={`/product/${item.slug}`} className="block relative aspect-[3/4] bg-sage-1">
+              <Link href={`/product/${item.slug}`} className="block relative aspect-[310/320] overflow-hidden bg-[#F7F7F0]">
                 <Image
                   src={item.image}
                   alt={item.name}
                   fill
-                  className="object-contain object-center p-4"
-                  sizes="(max-width: 768px) 100vw, 25vw"
+                  className="object-cover object-center"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
               </Link>
               <div className="p-4 border-t border-border">
-                <h3 className="font-sans text-sm font-medium text-text uppercase tracking-wide">
+                <h3 className="font-sans text-sm font-medium text-text uppercase tracking-wide truncate" title={item.name}>
                   {item.name}
                 </h3>
                 <p className="font-sans text-base font-medium text-text mt-1">${item.price}</p>
@@ -153,7 +153,7 @@ export default function WishlistPage() {
                       );
                     }}
                     variant="primary"
-                    className="flex-1 justify-center"
+                    className="flex-1 justify-center rounded-none"
                     disabled={outOfStock}
                   >
                     {outOfStock ? "Out of stock" : "Add to cart"}
@@ -161,7 +161,7 @@ export default function WishlistPage() {
                   <button
                     type="button"
                     onClick={() => handleRemove(item.productId, item.slug)}
-                    className="px-3 py-2 font-sans text-sm text-muted hover:text-text border border-border rounded-lg"
+                    className="px-3 py-2 font-sans text-sm text-muted hover:text-text border border-border rounded-none"
                     aria-label="Remove from wishlist"
                   >
                     Remove

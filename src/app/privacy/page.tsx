@@ -7,7 +7,7 @@ export default function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="font-sans text-sm md:text-base text-[#4B5563] leading-relaxed max-w-3xl mb-8">
-            This Privacy Policy explains how Spinkit Shop collects, uses, and protects your personal information when you use our website.
+            This Privacy Policy explains how Spinkit collects, uses, and protects your personal information when you use our website.
           </p>
 
           <div className="space-y-8 font-sans text-sm md:text-base text-[#374151] leading-relaxed max-w-3xl">
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="font-sans text-xl font-semibold text-[#111827] mb-3">How we use cookies</h2>
               <p className="mb-3">
-                Spinkit Shop uses cookies to personalise the services offered to you. Cookies allow us to remember your preferences, keep you signed in, and improve your browsing experience.
+                Spinkit uses cookies to personalise the services offered to you. Cookies allow us to remember your preferences, keep you signed in, and improve your browsing experience.
               </p>
               <p>
                 You can refuse cookies by configuring your browser. However, you may lose the ability to use certain features of our website.

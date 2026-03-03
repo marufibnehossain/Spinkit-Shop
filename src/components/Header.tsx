@@ -150,6 +150,7 @@ function CurrencySwitcher({
 
 function MobileCategoryLinks({ onClose }: { onClose: () => void }) {
   const [categories, setCategories] = useState<CategoryWithChildren[]>([]);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch("/api/categories")
@@ -158,42 +159,107 @@ function MobileCategoryLinks({ onClose }: { onClose: () => void }) {
       .catch(() => setCategories([]));
   }, []);
 
+  const toggleExpanded = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   if (categories.length === 0) return null;
+
+  const renderCategory = (item: CategoryWithChildren, depth: number) => {
+    const paddingLeft = depth === 0 ? 0 : 16 + (depth - 1) * 12;
+    const hasChildren = item.children.length > 0;
+    const isExpanded = expandedIds.has(item.id);
+
+    return (
+      <div key={item.id} className={depth === 0 ? "mb-3" : ""}>
+        <div
+          className="flex items-center justify-between py-2 font-sans text-sm text-text"
+          style={paddingLeft > 0 ? { paddingLeft: `${paddingLeft}px` } : undefined}
+        >
+          <Link
+            href={`/products?category=${item.slug}`}
+            className="flex-1 min-w-0 hover:bg-[#f5f5f5] -ml-2 -my-2 py-2 pl-2 pr-1"
+            onClick={onClose}
+          >
+            {item.name}
+          </Link>
+          {hasChildren && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                toggleExpanded(item.id);
+              }}
+              className="shrink-0 p-2 -m-2 text-text hover:bg-[#f5f5f5] rounded"
+              aria-expanded={isExpanded}
+              aria-label={isExpanded ? "Collapse" : "Expand"}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+          )}
+        </div>
+        {hasChildren && isExpanded && (
+          <div>{item.children.map((child) => renderCategory(child, depth + 1))}</div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="border-t border-border pt-4 mt-4">
       <p className="font-sans text-xs font-semibold uppercase tracking-wide text-muted mb-2">Categories</p>
-      <div className="space-y-1">
-        <Link href="/products" className="block py-2 font-sans text-sm text-text hover:text-muted" onClick={onClose}>
-          All Products
-        </Link>
-        {categories.map((parent) => (
-          <div key={parent.id}>
+      <div className="space-y-0">{categories.map((parent) => renderCategory(parent, 0))}</div>
+    </div>
+  );
+}
+
+/** Render children inline (flattened) - subcategories stay in same dropdown with progressive indent */
+function FlattenedCategoryList({
+  children: items,
+  onClose,
+  depth = 0,
+}: {
+  children: CategoryWithChildren[];
+  onClose: () => void;
+  depth?: number;
+}) {
+  const paddingLeft = 16 + depth * 12; // px-4 base + 12px per level
+  return (
+    <>
+      {items.map((child) => {
+        const childHasChildren = child.children.length > 0;
+        return (
+          <div key={child.id}>
             <Link
-              href={`/products?category=${parent.slug}`}
-              className="block py-2 font-sans text-sm font-medium text-text hover:text-muted"
+              href={`/products?category=${child.slug}`}
+              className="block py-2 font-sans text-sm text-text hover:bg-[#f5f5f5]"
+              style={{ paddingLeft: `${paddingLeft}px` }}
               onClick={onClose}
             >
-              {parent.name}
+              {child.name}
             </Link>
-            {parent.children.length > 0 && (
-              <div className="pl-4 space-y-1">
-                {parent.children.map((child) => (
-                  <Link
-                    key={child.id}
-                    href={`/products?category=${child.slug}`}
-                    className="block py-1.5 font-sans text-sm text-muted hover:text-text"
-                    onClick={onClose}
-                  >
-                    {child.name}
-                  </Link>
-                ))}
-              </div>
+            {childHasChildren && (
+              <FlattenedCategoryList children={child.children} onClose={onClose} depth={depth + 1} />
             )}
           </div>
-        ))}
-      </div>
-    </div>
+        );
+      })}
+    </>
   );
 }
 
@@ -207,50 +273,29 @@ function NestedCategoryMenu({
   ChevronDown: React.ReactNode;
 }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const showSubmenu = hoveredId === "sub" || item.children.some((c) => c.id === hoveredId);
 
   return (
-    <div className="py-1" onMouseLeave={() => setHoveredId(null)}>
+    <div className="relative" onMouseLeave={() => setHoveredId(null)}>
+      {/* Parent as trigger row: link to category, hover to show submenu */}
       <Link
         href={`/products?category=${item.slug}`}
-        className="block px-4 py-2 font-sans text-sm font-medium text-text hover:bg-[#f5f5f5]"
+        className="flex items-center justify-between px-4 py-2 font-sans text-sm text-text hover:bg-[#f5f5f5]"
+        onMouseEnter={() => setHoveredId("sub")}
         onClick={onClose}
       >
-        All {item.name}
+        {item.name}
+        <span className="shrink-0">{ChevronDown}</span>
       </Link>
-      {item.children.map((child) => {
-        const childHasChildren = child.children.length > 0;
-        const isHovered = hoveredId === child.id;
-        return (
-          <div
-            key={child.id}
-            className="relative"
-            onMouseEnter={() => setHoveredId(child.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            {childHasChildren ? (
-              <>
-                <div className="flex items-center justify-between px-4 py-2 font-sans text-sm text-text hover:bg-[#f5f5f5] cursor-default">
-                  {child.name}
-                  <span className="shrink-0">{ChevronDown}</span>
-                </div>
-                {isHovered && (
-                  <div className="absolute left-full top-0 ml-0 min-w-[200px] rounded-lg border border-border bg-white shadow-lg z-50">
-                    <NestedCategoryMenu item={child} onClose={onClose} ChevronDown={ChevronDown} />
-                  </div>
-                )}
-              </>
-            ) : (
-              <Link
-                href={`/products?category=${child.slug}`}
-                className="block px-4 py-2 font-sans text-sm text-muted hover:text-text hover:bg-[#f5f5f5]"
-                onClick={onClose}
-              >
-                {child.name}
-              </Link>
-            )}
-          </div>
-        );
-      })}
+      {/* Submenu: children + grandchildren in same dropdown (flattened) */}
+      {showSubmenu && (
+        <div
+          className="absolute left-full top-0 ml-0 min-w-[180px] max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-white shadow-lg z-50 py-1"
+          onMouseEnter={() => setHoveredId("sub")}
+        >
+          <FlattenedCategoryList children={item.children} onClose={onClose} />
+        </div>
+      )}
     </div>
   );
 }
@@ -294,32 +339,18 @@ function NavWithCategories({
       >
         {hasChildren ? (
           <>
-            <button
-              type="button"
+            <Link
+              href={`/products?category=${item.slug}`}
               className={`font-sans text-sm py-0.5 inline-flex items-center gap-1 ${textColor} ${iconHover}`}
               aria-expanded={isOpen}
               aria-haspopup="true"
             >
               {item.name}
               <span className={`transition-transform ${isOpen ? "rotate-180" : ""}`}>{ChevronDown}</span>
-            </button>
+            </Link>
             {isOpen && (
-              <div className="absolute left-0 top-full min-w-[180px] rounded-lg border border-border bg-white shadow-lg z-50 py-1">
-                <Link
-                  href={`/products?category=${item.slug}`}
-                  className="block px-4 py-2 font-sans text-sm font-medium text-text hover:bg-[#f5f5f5]"
-                >
-                  All {item.name}
-                </Link>
-                {item.children.map((child) => (
-                  <Link
-                    key={child.id}
-                    href={`/products?category=${child.slug}`}
-                    className="block px-4 py-2 font-sans text-sm text-muted hover:text-text hover:bg-[#f5f5f5]"
-                  >
-                    {child.name}
-                  </Link>
-                ))}
+              <div className="absolute left-0 top-full min-w-[180px] max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-white shadow-lg z-50 py-1">
+                <FlattenedCategoryList children={item.children} onClose={() => setOpenDropdown(null)} />
               </div>
             )}
           </>
@@ -354,7 +385,7 @@ function NavWithCategories({
             <span className={`transition-transform ${openDropdown === "more" ? "rotate-180" : ""}`}>{ChevronDown}</span>
           </button>
           {openDropdown === "more" && (
-            <div className="absolute left-0 top-full min-w-[200px] rounded-lg border border-border bg-white shadow-lg z-50">
+            <div className="absolute left-0 top-full min-w-[200px] rounded-lg border border-border bg-white shadow-lg z-50 py-1">
               {moreNav.map((item) => {
                 const hasChildren = item.children.length > 0;
                 return (
@@ -417,10 +448,10 @@ export default function Header({ variant = "solid" }: HeaderProps) {
           <Link href="/" className="shrink-0 hover:opacity-90 transition-opacity">
             <Image
               src={isTransparent ? "/images/spinkit-shop-logo.png" : "/images/Logo-Black.png"}
-              alt="Spinkit Shop"
-              width={150}
+              alt="Spinkit"
+              width={130}
               height={36}
-              className="w-[150px] h-auto object-contain"
+              className="w-[130px] h-auto object-contain"
               priority
             />
           </Link>

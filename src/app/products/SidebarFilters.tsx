@@ -4,20 +4,96 @@ import { useState, useEffect } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCurrencyStore } from "@/lib/currency-store";
+import type { CategoryWithChildren } from "@/lib/products";
 
 interface SidebarFiltersProps {
-  categories: { id: string; name: string; slug?: string }[];
+  categoryTree: CategoryWithChildren[];
   priceRange: { min: number; max: number };
   /** Called after applying a filter (e.g. to close mobile off-canvas) */
   onApply?: () => void;
 }
 
-export default function SidebarFilters({ categories, priceRange, onApply }: SidebarFiltersProps) {
+function containsSlug(node: CategoryWithChildren, slug: string): boolean {
+  if (node.slug === slug) return true;
+  return node.children.some((c) => containsSlug(c, slug));
+}
+
+function CategoryItem({
+  category,
+  currentCategory,
+  setCategory,
+}: {
+  category: CategoryWithChildren;
+  currentCategory: string;
+  setCategory: (value: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const hasChildren = category.children.length > 0;
+  const value = category.slug;
+  const active = currentCategory === value;
+  const isParentOfActive = hasChildren && containsSlug(category, currentCategory);
+
+  // Auto-expand if this category or a descendant is active
+  useEffect(() => {
+    if (active || isParentOfActive) setExpanded(true);
+  }, [active, isParentOfActive]);
+
+  return (
+    <li>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => setCategory(value)}
+          className={`flex-1 text-left py-1.5 ${
+            active ? "font-semibold text-text" : "text-muted hover:text-text"
+          }`}
+        >
+          {category.name}
+        </button>
+        {hasChildren ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((e) => !e)}
+            className="p-0.5 text-muted hover:text-text shrink-0"
+            aria-expanded={expanded}
+            aria-label={expanded ? "Collapse" : "Expand"}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className={`transition-transform ${expanded ? "rotate-90" : ""}`}
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+        ) : null}
+      </div>
+      {hasChildren && expanded && (
+        <ul className="ml-5 mt-0.5 space-y-0.5 border-l border-border pl-3">
+          {category.children.map((child) => (
+            <CategoryItem
+              key={child.id}
+              category={child}
+              currentCategory={currentCategory}
+              setCategory={setCategory}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+export default function SidebarFilters({ categoryTree, priceRange, onApply }: SidebarFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   useCurrencyStore((s) => s.currency);
   const formatPriceCompact = useCurrencyStore((s) => s.formatPriceCompact);
-  const currentCategory = searchParams.get("category") ?? "all";
+  const currentCategory = searchParams.get("category") ?? "";
   const minFromQuery = searchParams.get("minPrice");
   const maxFromQuery = searchParams.get("maxPrice");
 
@@ -42,7 +118,7 @@ export default function SidebarFilters({ categories, priceRange, onApply }: Side
 
   function setCategory(value: string) {
     const next = new URLSearchParams(searchParams.toString());
-    if (value === "all") next.delete("category");
+    if (value === currentCategory) next.delete("category");
     else next.set("category", value);
     next.delete("page");
     router.push(`/products?${next.toString()}`, { scroll: false });
@@ -79,36 +155,14 @@ export default function SidebarFilters({ categories, priceRange, onApply }: Side
           Categories
         </h2>
         <ul className="space-y-1 font-sans text-sm">
-          <li>
-            <button
-              type="button"
-              onClick={() => setCategory("all")}
-              className={`w-full text-left py-1.5 ${
-                currentCategory === "all"
-                  ? "font-semibold text-text"
-                  : "text-muted hover:text-text"
-              }`}
-            >
-              All
-            </button>
-          </li>
-          {categories.map((cat) => {
-            const value = cat.slug ?? cat.id;
-            const active = currentCategory === value;
-            return (
-              <li key={cat.id}>
-                <button
-                  type="button"
-                  onClick={() => setCategory(value)}
-                  className={`w-full text-left py-1.5 ${
-                    active ? "font-semibold text-text" : "text-muted hover:text-text"
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              </li>
-            );
-          })}
+          {categoryTree.map((cat) => (
+            <CategoryItem
+              key={cat.id}
+              category={cat}
+              currentCategory={currentCategory}
+              setCategory={setCategory}
+            />
+          ))}
         </ul>
       </div>
 
