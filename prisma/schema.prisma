@@ -82,7 +82,7 @@ model Order {
   shippingCents   Int
   totalCents      Int
   couponCode      String?
-  status          String   @default("PENDING") // PENDING | PAID | SHIPPED | CANCELLED
+  status          String   @default("PENDING") // PENDING | PROCESSING | ON_HOLD | COMPLETED | CANCELLED | REFUNDED | FAILED | DRAFT
   trackingNumber  String? // carrier tracking
   trackingCarrier String? // e.g. USPS, FedEx
   createdAt       DateTime @default(now())
@@ -92,7 +92,7 @@ model Order {
 }
 
 model OrderItem {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   orderId        String
   productId      String
   name           String
@@ -101,6 +101,7 @@ model OrderItem {
   variationId    String? // ProductVariation id if item is a variation
   variationLabel String? // e.g. "Size: M, Color: Red" for display
   order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        Product? @relation(fields: [productId], references: [id])
 }
 
 model Category {
@@ -139,10 +140,11 @@ model Product {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  category   Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  attributes ProductAttribute[]
-  variations ProductVariation[]
-  reviews    Review[]
+  category    Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  attributes  ProductAttribute[]
+  variations  ProductVariation[]
+  reviews     Review[]
+  orderItems  OrderItem[]
 }
 
 model ProductAttribute {
@@ -235,4 +237,9 @@ model BlogPost {
   updatedAt   DateTime  @updatedAt
 
   category BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+}
+
+model Setting {
+  key   String @id
+  value String
 }

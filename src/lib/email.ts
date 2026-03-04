@@ -229,19 +229,8 @@ export async function sendOrderStatusEmail(
   let content: string;
 
   switch (status) {
-    case "PAID":
-      subject = "Your Spinkit order has been paid";
-      content = `
-        <h2 style="margin: 0 0 16px; font-size: 20px; font-weight: 600; color: #1f2937;">Order confirmed</h2>
-        <p style="margin: 0 0 8px; font-size: 15px; color: #4b5563;">Hi${name ? ` ${name}` : ""},</p>
-        <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #4b5563;">
-          Your order <strong style="color: #1e3a5f;">#${orderShort}</strong> has been confirmed and paid.
-        </p>
-        <p style="margin: 0; font-size: 14px; color: #6b7280;">We're preparing your items for shipment.</p>
-      `;
-      break;
-    case "SHIPPED":
-      subject = "Your Spinkit order has shipped";
+    case "COMPLETED":
+      subject = "Your Spinkit order is complete";
       const trackingInfo =
         trackingNumber && trackingCarrier
           ? `<p style="margin: 16px 0 0; padding: 16px; background: #f0fdf4; border-radius: 8px; font-size: 14px; color: #166534;"><strong>Track your package:</strong> ${trackingCarrier} – ${trackingNumber}</p>`
@@ -249,10 +238,10 @@ export async function sendOrderStatusEmail(
             ? `<p style="margin: 16px 0 0; padding: 16px; background: #f0fdf4; border-radius: 8px; font-size: 14px; color: #166534;"><strong>Tracking:</strong> ${trackingNumber}</p>`
             : "";
       content = `
-        <h2 style="margin: 0 0 16px; font-size: 20px; font-weight: 600; color: #1f2937;">Your order has shipped!</h2>
+        <h2 style="margin: 0 0 16px; font-size: 20px; font-weight: 600; color: #1f2937;">Order complete</h2>
         <p style="margin: 0 0 8px; font-size: 15px; color: #4b5563;">Hi${name ? ` ${name}` : ""},</p>
         <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #4b5563;">
-          Your order <strong style="color: #1e3a5f;">#${orderShort}</strong> is on its way.
+          Your order <strong style="color: #1e3a5f;">#${orderShort}</strong> has been completed.
         </p>
         ${trackingInfo}
       `;
@@ -264,6 +253,17 @@ export async function sendOrderStatusEmail(
         <p style="margin: 0 0 8px; font-size: 15px; color: #4b5563;">Hi${name ? ` ${name}` : ""},</p>
         <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #4b5563;">
           Your order <strong style="color: #1e3a5f;">#${orderShort}</strong> has been cancelled.
+        </p>
+        <p style="margin: 0; font-size: 14px; color: #6b7280;">If you have questions, please contact us.</p>
+      `;
+      break;
+    case "REFUNDED":
+      subject = "Your Spinkit order has been refunded";
+      content = `
+        <h2 style="margin: 0 0 16px; font-size: 20px; font-weight: 600; color: #1f2937;">Order refunded</h2>
+        <p style="margin: 0 0 8px; font-size: 15px; color: #4b5563;">Hi${name ? ` ${name}` : ""},</p>
+        <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #4b5563;">
+          Your order <strong style="color: #1e3a5f;">#${orderShort}</strong> has been refunded.
         </p>
         <p style="margin: 0; font-size: 14px; color: #6b7280;">If you have questions, please contact us.</p>
       `;

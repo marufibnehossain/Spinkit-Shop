@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmationEmail } from "@/lib/email";
+import { isCodEnabled } from "@/lib/checkout-settings";
 
 type ItemInput = {
   productId?: string;
@@ -27,6 +28,8 @@ export async function POST(req: Request) {
       shipping,
       total,
       coupon,
+      transactionId,
+      paymentMethod,
     } = body as {
       email: string;
       name?: string;
@@ -40,7 +43,16 @@ export async function POST(req: Request) {
       shipping: number;
       total: number;
       coupon?: string | null;
+      transactionId?: string;
+      paymentMethod?: string;
     };
+
+    if (paymentMethod === "cod") {
+      const codOn = await isCodEnabled();
+      if (!codOn) {
+        return NextResponse.json({ error: "Cash on delivery is not available" }, { status: 400 });
+      }
+    }
 
     if (
       !email ||
@@ -82,7 +94,7 @@ export async function POST(req: Request) {
         shippingCents,
         totalCents,
         couponCode,
-        status: "PENDING",
+        status: transactionId ? "PROCESSING" : "PENDING",
         items: {
           create: (items as ItemInput[]).map((i) => ({
             productId: i.productId ?? "unknown",

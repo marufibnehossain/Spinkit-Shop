@@ -47,10 +47,16 @@ export default function OrderDetailPage() {
   }, [id]);
 
   const statusLabel: Record<string, string> = {
-    PENDING: "Pending",
+    PENDING: "Pending payment",
+    PROCESSING: "Processing",
+    ON_HOLD: "On hold",
+    COMPLETED: "Completed",
+    CANCELLED: "Cancelled",
+    REFUNDED: "Refunded",
+    FAILED: "Failed",
+    DRAFT: "Draft",
     PAID: "Paid",
     SHIPPED: "Shipped",
-    CANCELLED: "Cancelled",
   };
 
   if (loading) {

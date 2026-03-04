@@ -11,6 +11,7 @@ const SIDEBAR_LINKS = [
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/categories", label: "Categories" },
+  { href: "/admin/payment", label: "Payment" },
   { href: "/admin/contact", label: "Contact" },
   { href: "/admin/blog-categories", label: "Blog categories" },
   { href: "/admin/blog-posts", label: "Blog posts" },

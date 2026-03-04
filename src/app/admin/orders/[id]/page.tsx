@@ -7,11 +7,13 @@ import Button from "@/components/Button";
 
 type OrderItem = {
   id: string;
+  productId: string;
   name: string;
   priceCents: number;
   quantity: number;
   variationId?: string | null;
   variationLabel?: string | null;
+  product?: { slug: string } | null;
 };
 type Order = {
   id: string;
@@ -108,19 +110,35 @@ export default function AdminOrderDetailPage() {
       <Link href="/admin/orders" className="font-sans text-sm text-sage-dark hover:underline mb-6 inline-block">
         ← Back to orders
       </Link>
-      <h1 className="font-sans text-2xl font-semibold text-text mb-6">
-        Order {order.id.slice(0, 8)}
+      <h1 className="font-sans text-2xl font-semibold text-text mb-2">
+        Order details
       </h1>
+      <p className="font-sans text-sm text-muted mb-6">
+        Order ID: <code className="bg-bg px-1.5 py-0.5 rounded">{order.id}</code>
+      </p>
       <div className="grid md:grid-cols-2 gap-8 mb-8">
         <div className="border border-border rounded-lg bg-surface p-6">
           <h2 className="font-sans text-sm font-medium text-muted uppercase tracking-wide mb-3">
             Customer & shipping
           </h2>
-          <p className="font-sans text-text">{order.name ?? "—"}</p>
-          <p className="font-sans text-text">{order.email}</p>
-          <p className="font-sans text-text mt-2">
-            {order.address}, {order.city} {order.zip}, {order.country}
-          </p>
+          <div className="space-y-2 font-sans text-sm">
+            <div>
+              <span className="text-muted">Name:</span>{" "}
+              <span className="text-text">{order.name ?? "—"}</span>
+            </div>
+            <div>
+              <span className="text-muted">Email:</span>{" "}
+              <a href={`mailto:${order.email}`} className="text-sage-dark hover:underline">
+                {order.email}
+              </a>
+            </div>
+            <div>
+              <span className="text-muted">Address:</span>{" "}
+              <span className="text-text">
+                {order.address}, {order.city} {order.zip}, {order.country}
+              </span>
+            </div>
+          </div>
         </div>
         <div className="border border-border rounded-lg bg-surface p-6">
           <h2 className="font-sans text-sm font-medium text-muted uppercase tracking-wide mb-3">
@@ -133,10 +151,14 @@ export default function AdminOrderDetailPage() {
                 onChange={(e) => setStatus(e.target.value)}
                 className="rounded-lg border border-border bg-bg px-3 py-2 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-sage-2"
               >
-                <option value="PENDING">Pending</option>
-                <option value="PAID">Paid</option>
-                <option value="SHIPPED">Shipped</option>
+                <option value="PENDING">Pending payment</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="ON_HOLD">On hold</option>
+                <option value="COMPLETED">Completed</option>
                 <option value="CANCELLED">Cancelled</option>
+                <option value="REFUNDED">Refunded</option>
+                <option value="FAILED">Failed</option>
+                <option value="DRAFT">Draft</option>
               </select>
             </div>
             <div>
@@ -191,10 +213,23 @@ export default function AdminOrderDetailPage() {
             {order.items.map((item) => (
               <tr key={item.id} className="border-b border-border last:border-0">
                 <td className="p-3 text-text">
-                  <span>{item.name}</span>
-                  {item.variationLabel && (
-                    <span className="block text-xs text-muted mt-0.5">{item.variationLabel}</span>
-                  )}
+                  <div>
+                    {item.product?.slug ? (
+                      <Link
+                        href={`/product/${item.product.slug}`}
+                        className="text-sage-dark hover:underline"
+                      >
+                        {item.name}
+                      </Link>
+                    ) : (
+                      <span>{item.name}</span>
+                    )}
+                    {item.variationLabel && (
+                      <span className="block text-xs text-muted mt-0.5">
+                        {item.variationLabel}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="p-3 text-right text-muted">${(item.priceCents / 100).toFixed(2)}</td>
                 <td className="p-3 text-right text-muted">{item.quantity}</td>

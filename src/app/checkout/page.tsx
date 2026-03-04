@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { useCartStore } from "@/lib/cart-store";
+import { useCartStore, useCartHydration } from "@/lib/cart-store";
 import { useCurrencyStore } from "@/lib/currency-store";
 import { EUROPEAN_COUNTRIES, getStatesForCountry } from "@/lib/european-countries";
 
@@ -28,6 +28,23 @@ const inputClass =
 const cardClass = "rounded-lg border-[0.5px] border-[rgba(42,43,42,0.6)] p-4 sm:p-6 md:p-8";
 
 const CHECKOUT_SAVED_KEY = "spinkit-checkout-saved";
+
+const CARD_NUMBER_MAX_DIGITS = 16;
+
+function formatCardNumber(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, CARD_NUMBER_MAX_DIGITS);
+  return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+}
+
+function formatCvv(value: string): string {
+  return value.replace(/\D/g, "").slice(0, 4);
+}
+
+function formatExpiry(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
 
 type CheckoutSaved = {
   firstName?: string;
@@ -74,6 +91,7 @@ export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const clearCart = useCartStore((s) => s.clearCart);
+  const cartHasHydrated = useCartHydration((s) => s.hasHydrated);
 
   const [mounted, setMounted] = useState(false);
   const [savedLoaded, setSavedLoaded] = useState(false);
@@ -120,6 +138,7 @@ export default function CheckoutPage() {
   const [rememberPhoneNumber, setRememberPhoneNumber] = useState("");
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [codEnabled, setCodEnabled] = useState(true);
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvv, setCardCvv] = useState("");
@@ -134,8 +153,20 @@ export default function CheckoutPage() {
   const orderPlacedSuccessRef = useRef(false);
 
   useEffect(() => {
-    if (items.length === 0 && !orderPlacedSuccessRef.current) router.replace("/cart");
-  }, [items.length, router]);
+    if (!cartHasHydrated || orderPlacedSuccessRef.current) return;
+    if (items.length === 0) router.replace("/cart");
+  }, [cartHasHydrated, items.length, router]);
+
+  useEffect(() => {
+    fetch("/api/settings/checkout")
+      .then((r) => r.ok ? r.json() : { codEnabled: true })
+      .then((data: { codEnabled?: boolean }) => setCodEnabled(data.codEnabled !== false))
+      .catch(() => setCodEnabled(true));
+  }, []);
+
+  useEffect(() => {
+    if (!codEnabled && paymentMethod === "cod") setPaymentMethod("card");
+  }, [codEnabled, paymentMethod]);
 
   // When logged in, prefer session name/email (overrides localStorage)
   useEffect(() => {
@@ -186,6 +217,31 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
+      let transactionId: string | undefined;
+
+      // For card payments: charge first, then create order
+      if (paymentMethod === "card") {
+        const totalCents = Math.round(total * 100);
+        const chargeRes = await fetch("/api/payment/charge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amountCents: totalCents,
+            currency: "EUR",
+            cardNumber: cardNumber.replace(/\D/g, ""),
+            cardExpiry: cardExpiry.replace(/\D/g, "").padStart(4, "0").slice(-4),
+            cardCvv,
+            cardholderName: cardName.trim(),
+          }),
+        });
+
+        const chargeData = (await chargeRes.json().catch(() => ({}))) as { ok?: boolean; error?: string; transactionId?: string };
+        if (!chargeRes.ok || !chargeData.ok) {
+          throw new Error(chargeData.error || "Payment declined. Please check your card details.");
+        }
+        transactionId = chargeData.transactionId;
+      }
+
       const body = {
         email,
         name: `${firstName} ${lastName}`.trim() || undefined,
@@ -212,6 +268,7 @@ export default function CheckoutPage() {
         coupon: voucherCode || null,
         paymentMethod,
         deliveryMethod: "standard",
+        transactionId,
       };
 
       const res = await fetch("/api/order", {
@@ -429,17 +486,19 @@ export default function CheckoutPage() {
                 Payment
               </h2>
               <div className="space-y-3">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="cod"
-                    checked={paymentMethod === "cod"}
-                    onChange={() => setPaymentMethod("cod")}
-                    className="w-4 h-4 text-[#D0F198] focus:ring-[#D0F198]"
-                  />
-                  <span className="font-sans text-sm text-[#2A2B2A]">Cash On delivery</span>
-                </label>
+                {codEnabled && (
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="cod"
+                      checked={paymentMethod === "cod"}
+                      onChange={() => setPaymentMethod("cod")}
+                      className="w-4 h-4 text-[#D0F198] focus:ring-[#D0F198]"
+                    />
+                    <span className="font-sans text-sm text-[#2A2B2A]">Cash on delivery</span>
+                  </label>
+                )}
                 <label className="flex items-center gap-3 cursor-pointer flex-wrap">
                   <span className="flex items-center gap-3">
                     <input
@@ -464,10 +523,13 @@ export default function CheckoutPage() {
                     <label htmlFor="card-number" className={labelClass}>Card Number</label>
                     <input
                       id="card-number"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={CARD_NUMBER_MAX_DIGITS + 3}
                       className={inputClass}
                       placeholder="XXXX XXXX XXXX XXXX"
                       value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
+                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                       autoComplete="cc-number"
                       required={paymentMethod === "card"}
                     />
@@ -477,10 +539,13 @@ export default function CheckoutPage() {
                       <label htmlFor="card-cvv" className={labelClass}>CVV</label>
                       <input
                         id="card-cvv"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={4}
                         className={inputClass}
                         placeholder="123"
                         value={cardCvv}
-                        onChange={(e) => setCardCvv(e.target.value)}
+                        onChange={(e) => setCardCvv(formatCvv(e.target.value))}
                         autoComplete="cc-csc"
                         required={paymentMethod === "card"}
                       />
@@ -489,10 +554,13 @@ export default function CheckoutPage() {
                       <label htmlFor="card-expiry" className={labelClass}>Expiration Date</label>
                       <input
                         id="card-expiry"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={5}
                         className={inputClass}
                         placeholder="MM/YY"
                         value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
+                        onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
                         autoComplete="cc-exp"
                         required={paymentMethod === "card"}
                       />

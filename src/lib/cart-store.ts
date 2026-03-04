@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+/** Tracks when cart has been rehydrated from localStorage (avoids redirect on refresh) */
+export const useCartHydration = create<{ hasHydrated: boolean }>(() => ({ hasHydrated: false }));
+
 export interface CartItem {
   productId: string;
   slug: string;
@@ -80,6 +83,11 @@ export const useCartStore = create<CartState>()(
       getSubtotal: () =>
         get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
-    { name: "spinkit-cart" }
+    {
+      name: "spinkit-cart",
+      onRehydrateStorage: () => () => {
+        useCartHydration.setState({ hasHydrated: true });
+      },
+    }
   )
 );

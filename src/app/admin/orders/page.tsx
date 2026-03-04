@@ -42,16 +42,21 @@ export default function AdminOrdersPage() {
           className="rounded-lg border border-border bg-bg px-3 py-2 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-sage-2"
         >
           <option value="">All</option>
-          <option value="PENDING">Pending</option>
-          <option value="PAID">Paid</option>
-          <option value="SHIPPED">Shipped</option>
+          <option value="PENDING">Pending payment</option>
+          <option value="PROCESSING">Processing</option>
+          <option value="ON_HOLD">On hold</option>
+          <option value="COMPLETED">Completed</option>
           <option value="CANCELLED">Cancelled</option>
+          <option value="REFUNDED">Refunded</option>
+          <option value="FAILED">Failed</option>
+          <option value="DRAFT">Draft</option>
         </select>
       </div>
       <div className="border border-border rounded-lg bg-surface overflow-hidden">
         <table className="w-full font-sans text-sm">
           <thead>
             <tr className="border-b border-border bg-sage-1/50">
+              <th className="text-left p-3 font-medium text-text">Order ID</th>
               <th className="text-left p-3 font-medium text-text">Date</th>
               <th className="text-left p-3 font-medium text-text">Customer</th>
               <th className="text-right p-3 font-medium text-text">Total</th>
@@ -62,15 +67,20 @@ export default function AdminOrdersPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="p-6 text-muted text-center">Loading…</td>
+                <td colSpan={6} className="p-6 text-muted text-center">Loading…</td>
               </tr>
             ) : orders.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-6 text-muted text-center">No orders found</td>
+                <td colSpan={6} className="p-6 text-muted text-center">No orders found</td>
               </tr>
             ) : (
               orders.map((order) => (
                 <tr key={order.id} className="border-b border-border last:border-0">
+                  <td className="p-3">
+                    <code className="text-xs bg-bg px-1.5 py-0.5 rounded text-muted">
+                      {order.id.slice(0, 12)}…
+                    </code>
+                  </td>
                   <td className="p-3 text-muted">
                     {new Date(order.createdAt).toLocaleString()}
                   </td>
@@ -81,7 +91,7 @@ export default function AdminOrdersPage() {
                     ${(order.totalCents / 100).toFixed(2)}
                   </td>
                   <td className="p-3">
-                    <span className="capitalize text-muted">{order.status.toLowerCase()}</span>
+                    <span className="text-muted">{order.status.toLowerCase().replace(/_/g, " ")}</span>
                   </td>
                   <td className="p-3">
                     <Link href={`/admin/orders/${order.id}`} className="text-sage-dark hover:underline">

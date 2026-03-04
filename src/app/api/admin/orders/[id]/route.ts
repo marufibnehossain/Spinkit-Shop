@@ -20,11 +20,25 @@ export async function GET(
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
+    const productIds = [...new Set(order.items.map((i) => i.productId).filter(Boolean))];
+    const products = productIds.length
+      ? await prisma.product.findMany({
+          where: { id: { in: productIds } },
+          select: { id: true, slug: true },
+        })
+      : [];
+    const slugByProductId = Object.fromEntries(products.map((p) => [p.id, p.slug]));
+    const items = order.items.map((item) => ({
+      ...item,
+      product: item.productId && slugByProductId[item.productId]
+        ? { slug: slugByProductId[item.productId] }
+        : null,
+    }));
     return NextResponse.json({
       ...order,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt.toISOString(),
-      items: order.items,
+      items,
     });
   } catch (e) {
     console.error("[Admin] Order get error:", e);
@@ -44,7 +58,7 @@ export async function PATCH(
     const { id } = await params;
     const body = await req.json();
     const { status, trackingNumber, trackingCarrier } = body;
-    const allowed = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
+    const allowed = ["PENDING", "PROCESSING", "ON_HOLD", "COMPLETED", "CANCELLED", "REFUNDED", "FAILED", "DRAFT"];
 
     const data: { status?: string; trackingNumber?: string | null; trackingCarrier?: string | null } = {};
     if (typeof status === "string" && allowed.includes(status)) {
@@ -66,8 +80,23 @@ export async function PATCH(
       include: { items: true },
     });
 
-    // Send status email when status changed to PAID, SHIPPED, or CANCELLED
-    if (typeof status === "string" && ["PAID", "SHIPPED", "CANCELLED"].includes(status)) {
+    const productIds = [...new Set(order.items.map((i) => i.productId).filter(Boolean))];
+    const products = productIds.length
+      ? await prisma.product.findMany({
+          where: { id: { in: productIds } },
+          select: { id: true, slug: true },
+        })
+      : [];
+    const slugByProductId = Object.fromEntries(products.map((p) => [p.id, p.slug]));
+    const items = order.items.map((item) => ({
+      ...item,
+      product: item.productId && slugByProductId[item.productId]
+        ? { slug: slugByProductId[item.productId] }
+        : null,
+    }));
+
+    // Send status email when status changed to COMPLETED, CANCELLED, or REFUNDED
+    if (typeof status === "string" && ["COMPLETED", "CANCELLED", "REFUNDED"].includes(status)) {
       try {
         await sendOrderStatusEmail(order.email, {
           orderId: order.id,
@@ -85,7 +114,7 @@ export async function PATCH(
       ...order,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt.toISOString(),
-      items: order.items,
+      items,
     });
   } catch (e) {
     console.error("[Admin] Order update error:", e);
