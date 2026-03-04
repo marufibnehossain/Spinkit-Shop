@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getCategories } from "@/lib/products";
+
+export const dynamic = "force-dynamic";
 import {
   getFeaturedProducts,
   getProducts,
