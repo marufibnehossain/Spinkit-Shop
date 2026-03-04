@@ -20,7 +20,7 @@ export async function GET(
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
-    const productIds = [...new Set(order.items.map((i) => i.productId).filter(Boolean))];
+    const productIds = Array.from(new Set(order.items.map((i) => i.productId).filter(Boolean)));
     const products = productIds.length
       ? await prisma.product.findMany({
           where: { id: { in: productIds } },
@@ -80,7 +80,7 @@ export async function PATCH(
       include: { items: true },
     });
 
-    const productIds = [...new Set(order.items.map((i) => i.productId).filter(Boolean))];
+    const productIds = Array.from(new Set(order.items.map((i) => i.productId).filter(Boolean)));
     const products = productIds.length
       ? await prisma.product.findMany({
           where: { id: { in: productIds } },
