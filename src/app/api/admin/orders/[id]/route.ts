@@ -13,51 +13,18 @@ export async function GET(
   }
   try {
     const { id } = await params;
-    const orders = await prisma.$queryRawUnsafe<
-      Array<{
-        id: string;
-        email: string;
-        name: string | null;
-        address: string;
-        city: string;
-        zip: string;
-        country: string;
-        subtotalCents: number;
-        discountCents: number;
-        shippingCents: number;
-        totalCents: number;
-        couponCode: string | null;
-        status: string;
-        trackingNumber: string | null;
-        trackingCarrier: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-      }>
-    >('SELECT * FROM "Order" WHERE id = ?', id);
-    if (orders.length === 0) {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+    if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
-    const order = orders[0];
-    const items = await prisma.$queryRawUnsafe<
-      Array<{
-        id: string;
-        orderId: string;
-        productId: string;
-        name: string;
-        priceCents: number;
-        quantity: number;
-        variationId: string | null;
-        variationLabel: string | null;
-      }>
-    >(
-      "SELECT id, orderId, productId, name, priceCents, quantity, variationId, variationLabel FROM OrderItem WHERE orderId = ?",
-      id
-    );
     return NextResponse.json({
       ...order,
-      createdAt: order.createdAt.toISOString?.() ?? order.createdAt,
-      updatedAt: order.updatedAt.toISOString?.() ?? order.updatedAt,
-      items,
+      createdAt: order.createdAt.toISOString(),
+      updatedAt: order.updatedAt.toISOString(),
+      items: order.items,
     });
   } catch (e) {
     console.error("[Admin] Order get error:", e);
@@ -78,72 +45,33 @@ export async function PATCH(
     const body = await req.json();
     const { status, trackingNumber, trackingCarrier } = body;
     const allowed = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
-    const updates: string[] = ["updatedAt = datetime('now')"];
-    const paramsList: unknown[] = [];
+
+    const data: { status?: string; trackingNumber?: string | null; trackingCarrier?: string | null } = {};
     if (typeof status === "string" && allowed.includes(status)) {
-      updates.push("status = ?");
-      paramsList.push(status);
+      data.status = status;
     }
     if (trackingNumber !== undefined) {
-      updates.push("trackingNumber = ?");
-      paramsList.push(typeof trackingNumber === "string" ? trackingNumber : null);
+      data.trackingNumber = typeof trackingNumber === "string" ? trackingNumber : null;
     }
     if (trackingCarrier !== undefined) {
-      updates.push("trackingCarrier = ?");
-      paramsList.push(typeof trackingCarrier === "string" ? trackingCarrier : null);
+      data.trackingCarrier = typeof trackingCarrier === "string" ? trackingCarrier : null;
     }
-    if (paramsList.length === 0) {
+    if (Object.keys(data).length === 0) {
       return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
     }
-    paramsList.push(id);
-    await prisma.$executeRawUnsafe(
-      `UPDATE "Order" SET ${updates.join(", ")} WHERE id = ?`,
-      ...paramsList
-    );
-    const orders = await prisma.$queryRawUnsafe<
-      Array<{
-        id: string;
-        email: string;
-        name: string | null;
-        address: string;
-        city: string;
-        zip: string;
-        country: string;
-        subtotalCents: number;
-        discountCents: number;
-        shippingCents: number;
-        totalCents: number;
-        couponCode: string | null;
-        status: string;
-        trackingNumber: string | null;
-        trackingCarrier: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-      }>
-    >('SELECT * FROM "Order" WHERE id = ?', id);
-    const items = await prisma.$queryRawUnsafe<
-      Array<{
-        id: string;
-        orderId: string;
-        productId: string;
-        name: string;
-        priceCents: number;
-        quantity: number;
-        variationId: string | null;
-        variationLabel: string | null;
-      }>
-    >(
-      "SELECT id, orderId, productId, name, priceCents, quantity, variationId, variationLabel FROM OrderItem WHERE orderId = ?",
-      id
-    );
-    const order = orders[0];
+
+    const order = await prisma.order.update({
+      where: { id },
+      data,
+      include: { items: true },
+    });
 
     // Send status email when status changed to PAID, SHIPPED, or CANCELLED
     if (typeof status === "string" && ["PAID", "SHIPPED", "CANCELLED"].includes(status)) {
       try {
         await sendOrderStatusEmail(order.email, {
           orderId: order.id,
-          name: order.name,
+          name: order.name ?? undefined,
           status,
           trackingNumber: order.trackingNumber ?? undefined,
           trackingCarrier: order.trackingCarrier ?? undefined,
@@ -155,9 +83,9 @@ export async function PATCH(
 
     return NextResponse.json({
       ...order,
-      createdAt: order.createdAt.toISOString?.() ?? order.createdAt,
-      updatedAt: order.updatedAt.toISOString?.() ?? order.updatedAt,
-      items,
+      createdAt: order.createdAt.toISOString(),
+      updatedAt: order.updatedAt.toISOString(),
+      items: order.items,
     });
   } catch (e) {
     console.error("[Admin] Order update error:", e);
