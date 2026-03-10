@@ -23,6 +23,12 @@ export default function LoginPage() {
     setVerified(sp.get("verified"));
   }, []);
 
+  function getCallbackUrl(): string {
+    if (typeof window === "undefined") return "/account";
+    const url = new URLSearchParams(window.location.search).get("callbackUrl");
+    return url && url.startsWith("/") ? url : "/account";
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -43,7 +49,7 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      router.push("/account");
+      router.push(getCallbackUrl());
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");

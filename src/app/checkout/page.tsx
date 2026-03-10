@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
+import CheckoutAuthModal from "@/components/CheckoutAuthModal";
 import { useCartStore, useCartHydration } from "@/lib/cart-store";
 import { useCurrencyStore } from "@/lib/currency-store";
 import { EUROPEAN_COUNTRIES, getStatesForCountry } from "@/lib/european-countries";
@@ -84,7 +85,7 @@ function saveCheckoutToStorage(data: CheckoutSaved) {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   useCurrencyStore((s) => s.currency);
   const formatPrice = useCurrencyStore((s) => s.formatPrice);
 
@@ -150,6 +151,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [addressesLoaded, setAddressesLoaded] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const orderPlacedSuccessRef = useRef(false);
 
   useEffect(() => {
@@ -213,6 +215,10 @@ export default function CheckoutPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (items.length === 0 || loading) return;
+    if (status !== "authenticated" || !session) {
+      setAuthModalOpen(true);
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -750,6 +756,7 @@ export default function CheckoutPage() {
           </aside>
         </div>
       </div>
+      <CheckoutAuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );
 }
