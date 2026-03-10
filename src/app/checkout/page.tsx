@@ -52,14 +52,12 @@ type CheckoutSaved = {
   lastName?: string;
   email?: string;
   phone?: string;
-  phoneCountryCode?: string;
   address?: string;
   city?: string;
   zip?: string;
   country?: string;
   state?: string;
-  rememberPhoneCode?: string;
-  rememberPhoneNumber?: string;
+  rememberPhone?: string;
 };
 
 function loadSavedCheckout(): CheckoutSaved | null {
@@ -107,14 +105,12 @@ export default function CheckoutPage() {
       if (saved.lastName) setLastName(saved.lastName);
       if (saved.email) setEmail(saved.email);
       if (saved.phone) setPhone(saved.phone);
-      if (saved.phoneCountryCode) setPhoneCountryCode(saved.phoneCountryCode);
       if (saved.address) setAddress(saved.address);
       if (saved.city) setCity(saved.city);
       if (saved.zip) setZip(saved.zip);
       if (saved.country) setCountry(saved.country);
       if (saved.state) setState(saved.state);
-      if (saved.rememberPhoneCode) setRememberPhoneCode(saved.rememberPhoneCode);
-      if (saved.rememberPhoneNumber) setRememberPhoneNumber(saved.rememberPhoneNumber ?? "");
+      if (saved.rememberPhone) setRememberPhone(saved.rememberPhone);
     }
     setSavedLoaded(true);
   }, [mounted, savedLoaded]);
@@ -128,15 +124,13 @@ export default function CheckoutPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phoneCountryCode, setPhoneCountryCode] = useState("+44");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
-  const [rememberPhoneCode, setRememberPhoneCode] = useState("+44");
-  const [rememberPhoneNumber, setRememberPhoneNumber] = useState("");
+  const [rememberPhone, setRememberPhone] = useState("");
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [codEnabled, setCodEnabled] = useState(true);
@@ -314,14 +308,12 @@ export default function CheckoutPage() {
         lastName,
         email,
         phone,
-        phoneCountryCode,
         address,
         city,
         zip,
         country,
         state,
-        rememberPhoneCode,
-        rememberPhoneNumber,
+        rememberPhone,
       });
       orderPlacedSuccessRef.current = true;
       clearCart();
@@ -384,30 +376,15 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label htmlFor="billing-phone" className={labelClass}>Phone Number</label>
-                  <div className="flex rounded border-[0.5px] border-[rgba(42,43,42,0.6)] bg-transparent overflow-hidden focus-within:ring-2 focus-within:ring-[#D0F198]/50 focus-within:border-[rgba(42,43,42,0.6)]">
-                    <select
-                      value={phoneCountryCode}
-                      onChange={(e) => setPhoneCountryCode(e.target.value)}
-                      className="border-0 bg-transparent px-3 py-2.5 font-sans text-sm text-[#2A2B2A] focus:outline-none focus:ring-0"
-                      aria-label="Country code"
-                    >
-                      <option value="+44">+44</option>
-                      <option value="+421">+421</option>
-                      <option value="+1">+1</option>
-                      <option value="+49">+49</option>
-                      <option value="+33">+33</option>
-                    </select>
-                    <span className="self-center text-[#9ca3af]">|</span>
-                    <input
-                      id="billing-phone"
-                      type="tel"
-                      className="flex-1 min-w-0 border-0 bg-transparent px-3 py-2.5 font-sans text-sm text-[#2A2B2A] placeholder:text-[#9ca3af] focus:outline-none focus:ring-0"
-                      placeholder="000 0000 000"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      autoComplete="tel-national"
-                    />
-                  </div>
+                  <input
+                    id="billing-phone"
+                    type="tel"
+                    className={inputClass}
+                    placeholder="Phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    autoComplete="tel"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -618,30 +595,15 @@ export default function CheckoutPage() {
               </label>
               <div className="mt-4">
                 <label htmlFor="remember-phone" className={labelClass}>Phone Number</label>
-                <div className="flex rounded border-[0.5px] border-[rgba(42,43,42,0.6)] bg-transparent overflow-hidden focus-within:ring-2 focus-within:ring-[#D0F198]/50 focus-within:border-[rgba(42,43,42,0.6)]">
-                  <select
-                    value={rememberPhoneCode}
-                    onChange={(e) => setRememberPhoneCode(e.target.value)}
-                    className="border-0 bg-transparent px-3 py-2.5 font-sans text-sm text-[#2A2B2A] focus:outline-none focus:ring-0"
-                    aria-label="Country code"
-                  >
-                    <option value="+44">+44</option>
-                    <option value="+421">+421</option>
-                    <option value="+1">+1</option>
-                    <option value="+49">+49</option>
-                    <option value="+33">+33</option>
-                  </select>
-                  <span className="self-center text-[#9ca3af]">|</span>
-                  <input
-                    id="remember-phone"
-                    type="tel"
-                    className="flex-1 min-w-0 border-0 bg-transparent px-3 py-2.5 font-sans text-sm text-[#2A2B2A] placeholder:text-[#9ca3af] focus:outline-none focus:ring-0"
-                    placeholder="000 0000 000"
-                    value={rememberPhoneNumber}
-                    onChange={(e) => setRememberPhoneNumber(e.target.value)}
-                    autoComplete="tel-national"
-                  />
-                </div>
+                <input
+                  id="remember-phone"
+                  type="tel"
+                  className={inputClass}
+                  placeholder="Phone number"
+                  value={rememberPhone}
+                  onChange={(e) => setRememberPhone(e.target.value)}
+                  autoComplete="tel"
+                />
               </div>
               <p className="font-sans text-xs text-[#6b7280] mt-2">
                 Secure and encrypted
