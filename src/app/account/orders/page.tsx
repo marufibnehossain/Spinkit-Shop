@@ -40,7 +40,7 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
+      <div className="max-w-[1315px] mx-auto px-4 md:px-6 py-12 md:py-16 w-full">
         <Link href="/account" className="font-sans text-sm text-muted hover:text-text mb-8 inline-block">
           ← Account
         </Link>

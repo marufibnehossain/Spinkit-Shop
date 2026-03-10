@@ -8,7 +8,7 @@ import Button from "@/components/Button";
 export default function AccountPage() {
   return (
     <div className="min-h-screen bg-bg">
-      <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
+      <div className="max-w-[1315px] mx-auto px-4 md:px-6 py-12 md:py-16 w-full">
         <SectionHeading
           title="Your account"
           subtitle="Manage your orders, details, and preferences."
